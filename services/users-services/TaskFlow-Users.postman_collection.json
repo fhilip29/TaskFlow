@@ -1,0 +1,169 @@
+{
+  "info": {
+    "name": "TaskFlow Users Service",
+    "description": "API collection for TaskFlow Users Service - Profile management, image upload, and user preferences",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4001",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "your-jwt-token-here",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Get User Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "profile"]
+        }
+      }
+    },
+    {
+      "name": "Update User Profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"bio\": \"Software developer passionate about creating amazing user experiences\",\n  \"dateOfBirth\": \"1990-01-15\",\n  \"phone\": \"+1234567890\",\n  \"address\": {\n    \"street\": \"123 Main Street\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10001\",\n    \"country\": \"USA\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "profile"]
+        }
+      }
+    },
+    {
+      "name": "Upload Profile Image",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "profileImage",
+              "type": "file",
+              "src": []
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/profile/image",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "profile", "image"]
+        }
+      }
+    },
+    {
+      "name": "Delete Profile Image",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/profile/image",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "profile", "image"]
+        }
+      }
+    },
+    {
+      "name": "Update User Preferences",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"preferences\": {\n    \"notifications\": true,\n    \"theme\": \"dark\",\n    \"language\": \"en\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/preferences",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "preferences"]
+        }
+      }
+    },
+    {
+      "name": "Deactivate Account",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/deactivate",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "deactivate"]
+        }
+      }
+    }
+  ]
+}
