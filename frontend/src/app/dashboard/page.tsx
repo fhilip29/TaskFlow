@@ -448,6 +448,39 @@ function DashboardContent() {
 
           {/* Quick Actions & Upcoming */}
           <div className="space-y-6">
+            {/* Profile Quick View */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+              <div className="flex items-center space-x-4 mb-4">
+                <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-800 flex items-center justify-center">
+                  <span className="text-lg font-bold text-primary-700 dark:text-primary-300">
+                    {user?.fullName?.[0]?.toUpperCase() || "U"}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    {user?.fullName}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {user?.email}
+                  </p>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <a
+                  href="/dashboard/profile"
+                  className="flex-1 px-3 py-2 text-sm font-medium text-center text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                >
+                  View Profile
+                </a>
+                <a
+                  href="/dashboard/settings"
+                  className="flex-1 px-3 py-2 text-sm font-medium text-center text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  Settings
+                </a>
+              </div>
+            </div>
+
             {/* Quick Actions */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">

@@ -1,13 +1,15 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Tasks', href: '/tasks' },
-  { name: 'Projects', href: '/projects' },
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "Profile", href: "/dashboard/profile" },
+  { name: "Settings", href: "/dashboard/settings" },
+  { name: "Tasks", href: "/tasks" },
+  { name: "Projects", href: "/projects" },
 ];
 
 export default function Navigation() {
@@ -24,7 +26,10 @@ export default function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/dashboard" className="text-xl font-bold text-gray-900">
+              <Link
+                href="/dashboard"
+                className="text-xl font-bold text-gray-900"
+              >
                 TaskFlow
               </Link>
             </div>
@@ -35,8 +40,8 @@ export default function Navigation() {
                   href={item.href}
                   className={`${
                     pathname === item.href
-                      ? 'border-blue-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                      ? "border-blue-500 text-gray-900"
+                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                   } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                 >
                   {item.name}
@@ -45,7 +50,7 @@ export default function Navigation() {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <span className="text-gray-700 mr-4">Welcome, {user.name}</span>
+            <span className="text-gray-700 mr-4">Welcome, {user.fullName}</span>
             <button
               onClick={logout}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"

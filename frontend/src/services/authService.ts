@@ -76,19 +76,21 @@ export const register = async (data: RegisterData): Promise<LoginResponse> => {
       body: JSON.stringify(data),
     });
 
-    const data = await response.json();
+    const responseData = await response.json();
 
     if (!response.ok) {
       // If the server returns a validation error or other error message
       const errorMessage =
-        data.message ||
-        (data.errors ? JSON.stringify(data.errors) : "Registration failed");
+        responseData.message ||
+        (responseData.errors
+          ? JSON.stringify(responseData.errors)
+          : "Registration failed");
       throw new Error(errorMessage);
     }
 
     return {
-      token: data.token,
-      user: data.user,
+      token: responseData.token,
+      user: responseData.user,
     } as LoginResponse;
   } catch (error) {
     console.error("Registration error:", error);

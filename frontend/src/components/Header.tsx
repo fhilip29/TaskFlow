@@ -66,7 +66,7 @@ export default function Header() {
                   <span className="sr-only">Open user menu</span>
                   <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-800 flex items-center justify-center">
                     <span className="text-primary-700 dark:text-primary-300 font-medium">
-                      {user?.name?.[0]?.toUpperCase() || "U"}
+                      {user?.fullName?.[0]?.toUpperCase() || "U"}
                     </span>
                   </div>
                 </Menu.Button>
@@ -86,7 +86,7 @@ export default function Header() {
                           className={`${
                             active ? "bg-gray-100 dark:bg-gray-700" : ""
                           } block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 w-full text-left transition-colors`}
-                          onClick={() => router.push("/profile")}
+                          onClick={() => router.push("/dashboard/profile")}
                         >
                           Your Profile
                         </button>
@@ -98,7 +98,7 @@ export default function Header() {
                           className={`${
                             active ? "bg-gray-100 dark:bg-gray-700" : ""
                           } block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 w-full text-left transition-colors`}
-                          onClick={() => router.push("/settings")}
+                          onClick={() => router.push("/dashboard/settings")}
                         >
                           Settings
                         </button>
@@ -204,7 +204,7 @@ export default function Header() {
                   <>
                     <button
                       onClick={() => {
-                        router.push("/profile");
+                        router.push("/dashboard/profile");
                         setIsMobileMenuOpen(false);
                       }}
                       className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 dark:hover:text-white transition-colors"
@@ -213,7 +213,7 @@ export default function Header() {
                     </button>
                     <button
                       onClick={() => {
-                        router.push("/settings");
+                        router.push("/dashboard/settings");
                         setIsMobileMenuOpen(false);
                       }}
                       className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 dark:hover:text-white transition-colors"
