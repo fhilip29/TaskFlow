@@ -1,23 +1,29 @@
 "use client";
 
-import { useState, Fragment } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Menu, Transition } from "@headlessui/react";
 import ThemeToggle from "./ThemeToggle";
+import { Button } from "@/components/ui/button";
+import {
+  CheckCircle2,
+  Menu as MenuIcon,
+  X,
+  User,
+  Settings,
+  LogOut,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Header() {
-  const router = useRouter();
   const { user, logout } = useAuth();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
-    router.push("/login");
-  };
-
-  const handleLogin = () => {
     router.push("/login");
   };
 
@@ -31,221 +37,148 @@ export default function Header() {
     : [];
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo and brand */}
-          <div className="flex items-center">
-            <Link
-              href="/dashboard"
-              className="text-xl font-bold text-primary-600 dark:text-primary-400"
-            >
+    <header className="sticky top-0 z-50 w-full bg-card/95 backdrop-blur-sm border-b border-border shadow-sm">
+      <div className="container mx-auto px-6">
+        <nav className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+              <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
+            </div>
+            <span className="text-xl font-serif text-foreground group-hover:text-primary transition-colors">
               TaskFlow
-            </Link>
-          </div>
+            </span>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <div className="flex space-x-6">
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-base font-medium text-muted-foreground hover:text-primary transition-colors relative group"
+              >
+                {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-200"></span>
+              </Link>
+            ))}
+          </div>
 
+          {/* Right side actions */}
+          <div className="flex items-center space-x-4">
             <ThemeToggle />
 
             {user ? (
-              <Menu as="div" className="relative ml-3">
-                <Menu.Button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                  <span className="sr-only">Open user menu</span>
-                  <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-800 flex items-center justify-center">
-                    <span className="text-primary-700 dark:text-primary-300 font-medium">
-                      {user?.fullName?.[0]?.toUpperCase() || "U"}
-                    </span>
-                  </div>
-                </Menu.Button>
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted transition-colors"
                 >
-                  <Menu.Items className="glass-effect absolute right-0 mt-2 w-48 rounded-lg py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <Menu.Item>
-                      {({ active }: { active: boolean }) => (
-                        <button
-                          className={`${
-                            active ? "bg-gray-100 dark:bg-gray-700" : ""
-                          } block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 w-full text-left transition-colors`}
-                          onClick={() => router.push("/dashboard/profile")}
+                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="hidden sm:block text-base font-medium text-foreground">
+                    {user.username}
+                  </span>
+                </button>
+
+                <AnimatePresence>
+                  {isProfileMenuOpen && (
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      />
+
+                      {/* Menu */}
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -5 }}
+                        transition={{ duration: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
+                        className="absolute right-0 mt-2 w-48 bg-chalk-panel rounded-chalk-md shadow-chalk-lg border border-chalk-border py-2 focus:outline-none z-20"
+                      >
+                        <Link
+                          href="/dashboard/profile"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-3 text-chalk-body text-chalk-text hover:bg-chalk-subtle chalk-transition"
                         >
-                          Your Profile
-                        </button>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }: { active: boolean }) => (
-                        <button
-                          className={`${
-                            active ? "bg-gray-100 dark:bg-gray-700" : ""
-                          } block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 w-full text-left transition-colors`}
-                          onClick={() => router.push("/dashboard/settings")}
+                          <User className="w-4 h-4" />
+                          Profile
+                        </Link>
+                        <Link
+                          href="/dashboard/settings"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          className="flex items-center gap-2 px-4 py-3 text-chalk-body text-chalk-text hover:bg-chalk-subtle chalk-transition"
                         >
+                          <Settings className="w-4 h-4" />
                           Settings
-                        </button>
-                      )}
-                    </Menu.Item>
-                    <Menu.Item>
-                      {({ active }: { active: boolean }) => (
+                        </Link>
                         <button
-                          className={`${
-                            active ? "bg-gray-100 dark:bg-gray-700" : ""
-                          } block px-4 py-2 text-sm text-error w-full text-left transition-colors`}
-                          onClick={handleLogout}
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            handleLogout();
+                          }}
+                          className="w-full flex items-center gap-2 px-4 py-3 text-chalk-body text-chalk-danger hover:bg-chalk-danger/5 chalk-transition"
                         >
+                          <LogOut className="w-4 h-4" />
                           Sign out
                         </button>
-                      )}
-                    </Menu.Item>
-                  </Menu.Items>
-                </Transition>
-              </Menu>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
             ) : (
-              <button
-                onClick={handleLogin}
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors animate-fade-in"
-              >
-                Sign in
-              </button>
+              <Button onClick={() => router.push("/login")}>Sign in</Button>
             )}
-          </div>
 
-          {/* Mobile menu button */}
-          <div className="flex md:hidden">
+            {/* Mobile menu button */}
             <button
-              type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-chalk-md hover:bg-chalk-subtle chalk-transition"
             >
-              <span className="sr-only">Open main menu</span>
               {isMobileMenuOpen ? (
-                <svg
-                  className="block h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
+                <X className="w-6 h-6 text-chalk-text" />
               ) : (
-                <svg
-                  className="block h-6 w-6"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+                <MenuIcon className="w-6 h-6 text-chalk-text" />
               )}
             </button>
           </div>
-        </div>
+        </nav>
 
         {/* Mobile menu */}
-        <Transition
-          show={isMobileMenuOpen}
-          enter="transition duration-100 ease-out"
-          enterFrom="transform scale-95 opacity-0"
-          enterTo="transform scale-100 opacity-100"
-          leave="transition duration-75 ease-out"
-          leaveFrom="transform scale-100 opacity-100"
-          leaveTo="transform scale-95 opacity-0"
-        >
-          <div className="md:hidden">
-            <div className="glass-effect rounded-lg mt-2 pb-3 pt-2">
-              <div className="px-2 pb-3 flex justify-center border-b border-gray-200 dark:border-gray-700">
-                <ThemeToggle />
-              </div>
-              {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 dark:hover:text-white transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <div className="mt-3 space-y-1 px-2">
-                {user ? (
-                  <>
-                    <button
-                      onClick={() => {
-                        router.push("/dashboard/profile");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 dark:hover:text-white transition-colors"
-                    >
-                      Your Profile
-                    </button>
-                    <button
-                      onClick={() => {
-                        router.push("/dashboard/settings");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-50 dark:hover:bg-gray-700 dark:hover:text-white transition-colors"
-                    >
-                      Settings
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-error hover:text-error-dark hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      Sign out
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => {
-                      handleLogin();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="block w-full text-center px-3 py-2 rounded-md text-base font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-chalk-border py-4 overflow-hidden"
+            >
+              <div className="space-y-2">
+                {navigation.map((item, index) => (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
                   >
-                    Sign in
-                  </button>
-                )}
+                    <Link
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block px-4 py-3 text-chalk-body font-medium text-chalk-text2 hover:text-chalk-primary600 hover:bg-chalk-subtle rounded-chalk-md chalk-transition"
+                    >
+                      {item.name}
+                    </Link>
+                  </motion.div>
+                ))}
               </div>
-            </div>
-          </div>
-        </Transition>
-      </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </header>
   );
 }

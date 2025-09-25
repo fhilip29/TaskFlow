@@ -33,12 +33,10 @@ export default function ProfileView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">
-            Loading your profile...
-          </p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your profile...</p>
         </div>
       </div>
     );
@@ -46,8 +44,8 @@ export default function ProfileView() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-center bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-200 dark:border-gray-700">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center bg-card rounded-2xl p-8 shadow-xl border border-border">
           <svg
             className="w-16 h-16 text-red-500 mx-auto mb-4"
             fill="none"
@@ -61,13 +59,13 @@ export default function ProfileView() {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Oops! Something went wrong
           </h3>
-          <p className="text-red-600 dark:text-red-400 mb-6">{error}</p>
+          <p className="text-red-600 mb-6">{error}</p>
           <button
             onClick={loadProfile}
-            className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors space-x-2 font-medium"
+            className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors space-x-2 font-medium"
           >
             <svg
               className="w-4 h-4"
@@ -90,21 +88,21 @@ export default function ProfileView() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-subtle">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Enhanced Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-serif font-bold text-foreground chalk-underline inline-block pb-2">
               My Profile
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-muted-foreground mt-2">
               View and manage your personal information
             </p>
           </div>
           <Link
             href="/dashboard/settings"
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl hover:from-primary-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl space-x-2 font-medium"
+            className="inline-flex items-center px-6 py-3 bg-gradient-primary text-primary-foreground rounded-xl hover:opacity-90 transition-all duration-200 shadow-sm hover:shadow-md space-x-2 font-medium"
           >
             <svg
               className="w-5 h-5"
@@ -124,9 +122,9 @@ export default function ProfileView() {
         </div>
 
         {/* Enhanced Profile Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-card rounded-3xl shadow-lg border border-border overflow-hidden">
           {/* Gradient Cover */}
-          <div className="h-40 bg-gradient-to-br from-primary-500 via-purple-600 to-pink-500 relative">
+          <div className="h-40 bg-gradient-primary relative">
             <div className="absolute inset-0 bg-black bg-opacity-20"></div>
             <div className="absolute bottom-4 left-6">
               <div className="flex items-center space-x-2 text-white">
@@ -157,27 +155,27 @@ export default function ProfileView() {
                   <img
                     src={`http://localhost:4001/${profile.profileImage}`}
                     alt="Profile"
-                    className="w-40 h-40 rounded-full object-cover border-6 border-white dark:border-gray-800 shadow-2xl"
+                    className="w-40 h-40 rounded-full object-cover border-6 border-background shadow-xl"
                   />
                 ) : (
-                  <div className="w-40 h-40 rounded-full bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center border-6 border-white dark:border-gray-800 shadow-2xl">
+                  <div className="w-40 h-40 rounded-full bg-gradient-primary flex items-center justify-center border-6 border-background shadow-xl">
                     <span className="text-5xl font-bold text-white">
                       {profile?.fullName?.[0]?.toUpperCase() || "U"}
                     </span>
                   </div>
                 )}
-                <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white dark:border-gray-800"></div>
+                <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-background"></div>
               </div>
 
               <div className="text-center sm:text-left flex-1">
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <h2 className="text-3xl font-serif font-bold text-foreground mb-2">
                   {profile?.fullName}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-1 flex items-center justify-center sm:justify-start space-x-1">
+                <p className="text-muted-foreground mb-1 flex items-center justify-center sm:justify-start space-x-1">
                   <span>@{profile?.username}</span>
                   {profile?.isVerified && (
                     <svg
-                      className="w-5 h-5 text-blue-500"
+                      className="w-5 h-5 text-primary"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -189,7 +187,7 @@ export default function ProfileView() {
                     </svg>
                   )}
                 </p>
-                <p className="text-gray-600 dark:text-gray-400 flex items-center justify-center sm:justify-start space-x-1">
+                <p className="text-muted-foreground flex items-center justify-center sm:justify-start space-x-1">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -247,10 +245,10 @@ export default function ProfileView() {
 
             {/* Bio Section */}
             {profile?.bio && (
-              <div className="mb-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-2xl border border-gray-200 dark:border-gray-600">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center space-x-2">
+              <div className="mb-8 p-6 bg-muted/50 rounded-2xl border border-border">
+                <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center space-x-2">
                   <svg
-                    className="w-5 h-5 text-primary-600"
+                    className="w-5 h-5 text-primary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -264,7 +262,7 @@ export default function ProfileView() {
                   </svg>
                   <span>About</span>
                 </h3>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   {profile.bio}
                 </p>
               </div>
@@ -273,11 +271,11 @@ export default function ProfileView() {
             {/* Enhanced Profile Details */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Personal Information Card */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center space-x-2">
-                  <div className="p-2 bg-blue-500 rounded-lg">
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl p-6 border border-primary/20">
+                <h3 className="text-xl font-serif font-bold text-foreground mb-6 flex items-center space-x-2">
+                  <div className="p-2 bg-primary rounded-lg">
                     <svg
-                      className="w-5 h-5 text-white"
+                      className="w-5 h-5 text-primary-foreground"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -294,7 +292,7 @@ export default function ProfileView() {
                 </h3>
                 <div className="space-y-4">
                   {profile?.phoneNumber && (
-                    <div className="flex items-center space-x-4 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+                    <div className="flex items-center space-x-4 p-3 bg-card rounded-xl shadow-sm">
                       <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                         <svg
                           className="w-4 h-4 text-green-600 dark:text-green-400"
@@ -311,10 +309,10 @@ export default function ProfileView() {
                         </svg>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                           Phone Number
                         </p>
-                        <p className="font-medium text-gray-900 dark:text-white">
+                        <p className="font-medium text-foreground">
                           {profile.phoneNumber}
                         </p>
                       </div>
@@ -377,7 +375,7 @@ export default function ProfileView() {
                     </div>
                   )}
 
-                  <div className="flex items-center space-x-4 p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+                  <div className="flex items-center space-x-4 p-3 bg-card rounded-xl shadow-sm">
                     <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                       <svg
                         className="w-4 h-4 text-blue-600 dark:text-blue-400"
@@ -394,14 +392,14 @@ export default function ProfileView() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-muted-foreground">
                         Account Status
                       </p>
                       <p
                         className={`font-medium ${
                           profile?.isVerified
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-yellow-600 dark:text-yellow-400"
+                            ? "text-green-600"
+                            : "text-orange-600"
                         }`}
                       >
                         {profile?.isVerified
