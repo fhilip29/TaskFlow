@@ -18,9 +18,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          "bg-chalk-primary-600 text-white shadow-sm border border-chalk-primary-600",
-          "hover:bg-chalk-primary-700 hover:border-chalk-primary-700",
-          "focus:bg-chalk-primary-700 focus:border-chalk-primary-700",
+          "bg-emerald-600 text-white shadow-sm border border-emerald-600",
+          "hover:bg-emerald-700 hover:border-emerald-700",
+          "focus:bg-emerald-700 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-400/50",
         ],
         success: [
           "bg-green-600 text-white shadow-sm border border-green-600",
@@ -28,18 +28,18 @@ const buttonVariants = cva(
           "focus:bg-green-700 focus:border-green-700",
         ],
         subtle: [
-          "bg-chalk-subtle text-chalk-text shadow-sm border border-chalk-border",
-          "hover:bg-chalk-hover hover:border-chalk-hover",
-          "focus:bg-chalk-hover focus:border-chalk-hover",
+          "bg-gray-50 text-gray-900 shadow-sm border border-gray-200",
+          "hover:bg-gray-100 hover:border-gray-300",
+          "focus:bg-gray-100 focus:border-gray-300",
         ],
         outline: [
-          "border border-chalk-border bg-chalk-panel text-chalk-text shadow-sm",
-          "hover:bg-chalk-hover hover:text-chalk-text hover:border-chalk-text-2",
-          "focus:bg-chalk-hover focus:border-chalk-text-2",
+          "border border-gray-300 bg-white text-gray-700 shadow-sm",
+          "hover:bg-gray-50 hover:text-gray-900 hover:border-gray-400",
+          "focus:bg-gray-50 focus:border-gray-400",
         ],
         ghost: [
-          "text-chalk-text hover:bg-chalk-hover hover:text-chalk-text",
-          "focus:bg-chalk-hover",
+          "text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+          "focus:bg-gray-100",
         ],
         destructive: [
           "bg-red-600 text-white shadow-sm border border-red-600",
@@ -47,7 +47,7 @@ const buttonVariants = cva(
           "focus:bg-red-700 focus:border-red-700",
         ],
         link: [
-          "text-chalk-primary-600 underline-offset-4 hover:underline",
+          "text-emerald-600 underline-offset-4 hover:underline",
           "focus:underline",
         ],
       },

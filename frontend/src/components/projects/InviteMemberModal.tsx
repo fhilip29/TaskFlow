@@ -367,14 +367,18 @@ export function InviteMemberModal({
                   >
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={member.user?.avatar} />
+                        <AvatarImage
+                          src={member.profileImage || member.user?.profileImage}
+                        />
                         <AvatarFallback className="text-xs">
                           {member.email.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <p className="text-sm font-medium text-chalk-text">
-                          {member.user?.name || member.email}
+                          {member.fullName ||
+                            member.user?.fullName ||
+                            member.email}
                         </p>
                         <p className="text-xs text-chalk-text-2">
                           {member.email}

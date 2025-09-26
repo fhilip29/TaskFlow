@@ -18,14 +18,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { 
-  MoreHorizontal, 
-  Crown, 
-  User, 
-  Eye, 
+import {
+  MoreHorizontal,
+  Crown,
+  User,
+  Eye,
   UserX,
   Mail,
-  Settings
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -52,35 +52,41 @@ export function MemberAvatar({
   onRemoveMember,
   className,
 }: MemberAvatarProps) {
-  
   // Helper functions
   const getInitials = (name?: string, email?: string) => {
     if (name && name.trim()) {
-      return name.split(' ').map(part => part[0]).join('').toUpperCase().slice(0, 2);
+      return name
+        .split(" ")
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
     }
     if (email) {
       return email.slice(0, 2).toUpperCase();
     }
-    return 'U';
+    return "U";
   };
 
-  const getMemberName = () => member.user?.name || member.user?.email || 'Unknown User';
-  const getMemberEmail = () => member.user?.email || '';
-  const getMemberAvatar = () => member.user?.avatar;
+  const getMemberName = () =>
+    member.fullName || member.user?.fullName || member.email || "Unknown User";
+  const getMemberEmail = () => member.email || member.user?.email || "";
+  const getMemberAvatar = () =>
+    member.profileImage || member.user?.profileImage;
 
   const sizeClasses = {
     sm: "h-8 w-8",
-    md: "h-10 w-10", 
-    lg: "h-12 w-12"
+    md: "h-10 w-10",
+    lg: "h-12 w-12",
   };
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case 'admin':
+      case "admin":
         return <Crown className="h-3 w-3" />;
-      case 'member':
+      case "member":
         return <User className="h-3 w-3" />;
-      case 'viewer':
+      case "viewer":
         return <Eye className="h-3 w-3" />;
       default:
         return null;
@@ -89,14 +95,14 @@ export function MemberAvatar({
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin':
-        return 'bg-chalk-primary-500 text-white';
-      case 'member':
-        return 'bg-blue-100 text-blue-800';
-      case 'viewer':
-        return 'bg-gray-100 text-gray-800';
+      case "admin":
+        return "bg-chalk-primary-500 text-white";
+      case "member":
+        return "bg-blue-100 text-blue-800";
+      case "viewer":
+        return "bg-gray-100 text-gray-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -104,29 +110,26 @@ export function MemberAvatar({
     <div className={cn("flex items-center gap-2", className)}>
       <div className="relative">
         <Avatar className={sizeClasses[size]}>
-          <AvatarImage 
-            src={getMemberAvatar()}
-            alt={getMemberName()} 
-          />
+          <AvatarImage src={getMemberAvatar()} alt={getMemberName()} />
           <AvatarFallback className="bg-chalk-subtle text-chalk-text font-medium">
             {getInitials(getMemberName(), getMemberEmail())}
           </AvatarFallback>
         </Avatar>
-        
+
         {/* Role indicator badge */}
         {showRole && (
-          <div className={cn(
-            "absolute -bottom-1 -right-1 rounded-full px-1.5 py-0.5 text-xs font-medium flex items-center gap-1",
-            getRoleColor(member.role)
-          )}>
-            {getRoleIcon(member.role)}
-            {size === "lg" && (
-              <span className="capitalize">{member.role}</span>
+          <div
+            className={cn(
+              "absolute -bottom-1 -right-1 rounded-full px-1.5 py-0.5 text-xs font-medium flex items-center gap-1",
+              getRoleColor(member.role)
             )}
+          >
+            {getRoleIcon(member.role)}
+            {size === "lg" && <span className="capitalize">{member.role}</span>}
           </div>
         )}
       </div>
-      
+
       {showName && (
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-chalk-text truncate">
@@ -134,7 +137,7 @@ export function MemberAvatar({
           </p>
         </div>
       )}
-      
+
       {showActions && (onUpdateRole || onRemoveMember) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -142,26 +145,29 @@ export function MemberAvatar({
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-chalk-panel border-chalk-border">
+          <DropdownMenuContent
+            align="end"
+            className="bg-chalk-panel border-chalk-border"
+          >
             {onUpdateRole && (
               <>
                 <DropdownMenuItem
-                  onClick={() => onUpdateRole(member.userId, 'admin')}
-                  disabled={member.role === 'admin'}
+                  onClick={() => onUpdateRole(member.userId, "admin")}
+                  disabled={member.role === "admin"}
                 >
                   <Crown className="mr-2 h-4 w-4" />
                   Make Admin
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => onUpdateRole(member.userId, 'member')}
-                  disabled={member.role === 'member'}
+                  onClick={() => onUpdateRole(member.userId, "member")}
+                  disabled={member.role === "member"}
                 >
                   <User className="mr-2 h-4 w-4" />
                   Make Member
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => onUpdateRole(member.userId, 'viewer')}
-                  disabled={member.role === 'viewer'}
+                  onClick={() => onUpdateRole(member.userId, "viewer")}
+                  disabled={member.role === "viewer"}
                 >
                   <Eye className="mr-2 h-4 w-4" />
                   Make Viewer
@@ -188,9 +194,7 @@ export function MemberAvatar({
     return (
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger asChild>
-            {avatarContent}
-          </TooltipTrigger>
+          <TooltipTrigger asChild>{avatarContent}</TooltipTrigger>
           <TooltipContent className="bg-chalk-panel border-chalk-border">
             <div className="text-center">
               <p className="font-medium">{getMemberName()}</p>

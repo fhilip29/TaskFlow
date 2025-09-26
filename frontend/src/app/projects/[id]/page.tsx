@@ -285,7 +285,9 @@ const ProjectDetailPage: React.FC = () => {
                         />
                         <div>
                           <div className="font-medium text-chalk-text text-sm">
-                            {member.user.name}
+                            {member.fullName ||
+                              member.user?.fullName ||
+                              member.email}
                           </div>
                           <div className="text-xs text-chalk-text-2">
                             {member.role

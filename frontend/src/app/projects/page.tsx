@@ -182,6 +182,21 @@ const ProjectsPage: React.FC = () => {
     progress: project.metadata?.progress || 0,
     status: project.status,
     updatedAt: project.updatedAt,
+    // Enhanced member information
+    admins:
+      project.members
+        ?.filter((m) => m.role === "admin" && m.status === "active")
+        .map((m) => ({
+          _id: m.userId,
+          fullName: m.fullName || m.user?.fullName || "Unknown",
+          email: m.email,
+          profileImage: m.profileImage || m.user?.profileImage,
+        })) || [],
+    activeMembers:
+      project.members?.filter((m) => m.status === "active").length || 0,
+    pendingInvites:
+      project.members?.filter((m) => m.status === "invited").length || 0,
+    invitationCode: project.invitationCode,
   });
 
   const handleProjectCreated = (project: IProject) => {

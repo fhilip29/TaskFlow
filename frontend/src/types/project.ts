@@ -4,10 +4,12 @@ export interface IProjectMember {
   id?: string;
   userId: string;
   email: string;
-  user: {
-    name: string;
+  fullName?: string;
+  profileImage?: string;
+  user?: {
+    fullName: string;
     email: string;
-    avatar?: string;
+    profileImage?: string;
   };
   role: "admin" | "member" | "viewer";
   joinedAt: Date;

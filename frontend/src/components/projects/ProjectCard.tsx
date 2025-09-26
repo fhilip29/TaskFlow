@@ -78,9 +78,9 @@ export function ProjectCard({
           ?.filter((m) => m.role === "admin" && m.status === "active")
           .map((m) => ({
             _id: m.userId,
-            fullName: m.user.name,
-            email: m.user.email,
-            profileImage: m.user.avatar,
+            fullName: m.fullName || m.user?.fullName || "Unknown",
+            email: m.email,
+            profileImage: m.profileImage || m.user?.profileImage,
           })) || []
       );
     }
