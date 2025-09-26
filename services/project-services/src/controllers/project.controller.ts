@@ -82,15 +82,16 @@ export const createProject = async (
       project.qrCodeUrl = qrCodeUrl;
     }
 
-    await project.save();
-
-    // Update the creator's email in members array
+    // Update the creator's email in members array BEFORE saving
+    // The pre-save middleware adds the creator as admin member with empty email
+    // We need to populate the email before the first save to pass validation
     const creatorMember = project.members.find(
       (m) => m.userId.toString() === userId
     );
     if (creatorMember && user.email) {
       creatorMember.email = user.email;
     }
+
     await project.save();
 
     const response = successResponse(
@@ -165,8 +166,14 @@ export const getUserProjects = async (
       UserService.getUsersByIds(adminIds),
     ]);
 
+    console.log("[DEBUG] Creators result:", creatorsResult);
+    console.log("[DEBUG] Admins result:", adminsResult);
+
     const creatorsData = creatorsResult.success ? creatorsResult.data : [];
     const adminsData = adminsResult.success ? adminsResult.data : [];
+
+    console.log("[DEBUG] Creators data:", creatorsData);
+    console.log("[DEBUG] Admins data:", adminsData);
 
     // Format response
     const projectList: ProjectListResponse[] = projects.map((project) => {

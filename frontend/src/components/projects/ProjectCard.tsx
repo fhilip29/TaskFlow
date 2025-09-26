@@ -32,7 +32,7 @@ const MotionCard = motion(Card);
 interface ProjectCardProps {
   project: IProject | IProjectListItem;
   onUpdate?: (project: IProject | IProjectListItem) => void;
-  onDelete?: (projectId: string) => void;
+  onDelete?: (projectId: string) => Promise<void>;
   viewMode?: "grid" | "list";
   className?: string;
 }
@@ -117,7 +117,7 @@ export function ProjectCard({
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this project?")) {
-      onDelete?.(project._id);
+      await onDelete?.(project._id);
     }
   };
 

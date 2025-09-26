@@ -132,11 +132,20 @@ export class UserService {
    */
   static async getUsersByIds(userIds: string[]): Promise<UsersServiceResponse> {
     try {
+      console.log(`[DEBUG] Fetching users by IDs:`, userIds);
+      console.log(`[DEBUG] Using base URL:`, this.baseUrl);
+
       const response = await fetch(`${this.baseUrl}/api/users/batch`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          // Add a service-to-service auth header if needed
+          "X-Service-Auth": "project-service",
+        },
         body: JSON.stringify({ userIds }),
       });
+
+      console.log(`[DEBUG] User service response status:`, response.status);
 
       if (!response.ok) {
         // Fallback to stub if service is unavailable
@@ -158,6 +167,8 @@ export class UserService {
       }
 
       const data = (await response.json()) as any;
+      console.log(`[DEBUG] User service response data:`, data);
+
       if (data.success && data.data) {
         const formattedUsers = data.data.map((user: any) => ({
           _id: user._id,

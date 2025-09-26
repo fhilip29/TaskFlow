@@ -9,6 +9,7 @@ import {
   List,
   Home,
   ArrowLeft,
+  Users,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -31,6 +32,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { JoinProjectModal } from "@/components/projects/JoinProjectModal";
 
 interface ProjectsPageState {
   projects: IProjectListItem[];
@@ -41,6 +43,8 @@ interface ProjectsPageState {
   totalProjects: number;
   currentPage: number;
   showCreateModal: boolean;
+  showJoinModal: boolean;
+  joinLoading: boolean;
 }
 
 const ProjectsPage: React.FC = () => {
@@ -53,6 +57,8 @@ const ProjectsPage: React.FC = () => {
     totalProjects: 0,
     currentPage: 1,
     showCreateModal: false,
+    showJoinModal: false,
+    joinLoading: false,
   });
 
   const loadProjects = async (filters?: ProjectFilterOptions) => {
@@ -66,11 +72,15 @@ const ProjectsPage: React.FC = () => {
         limit: 12,
       };
 
+      console.log("Loading projects with filters:", queryFilters);
       const response = await projectService.getProjects(queryFilters);
+      console.log("Projects response:", response);
 
       // Handle response safely
       const projectsData = response?.data || [];
       const totalCount = response?.pagination?.total || projectsData.length;
+
+      console.log("Projects data:", projectsData, "Total:", totalCount);
 
       setState((prev) => ({
         ...prev,
@@ -232,13 +242,64 @@ const ProjectsPage: React.FC = () => {
     }));
   };
 
-  const handleProjectDeleted = (projectId: string) => {
-    setState((prev) => ({
-      ...prev,
-      projects: prev.projects.filter((p) => p._id !== projectId),
-      totalProjects: prev.totalProjects - 1,
-    }));
-    toast.success("Project deleted successfully");
+  const handleProjectDeleted = async (projectId: string) => {
+    try {
+      setState((prev) => ({ ...prev, loading: true }));
+
+      const response = await projectService.deleteProject(projectId);
+
+      if (response.success) {
+        setState((prev) => ({
+          ...prev,
+          projects: prev.projects.filter((p) => p._id !== projectId),
+          totalProjects: prev.totalProjects - 1,
+          loading: false,
+        }));
+        toast.success("Project deleted successfully");
+      } else {
+        throw new Error(response.message || "Failed to delete project");
+      }
+    } catch (error) {
+      console.error("Delete project error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete project";
+      toast.error(errorMessage);
+      setState((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleJoinProject = async (invitationCode: string) => {
+    try {
+      setState((prev) => ({ ...prev, joinLoading: true }));
+
+      const response = await projectService.joinProject(invitationCode);
+
+      if (response.success) {
+        toast.success("Successfully joined the project!");
+        // Close modal first
+        setState((prev) => ({ ...prev, showJoinModal: false }));
+        // Small delay to ensure backend has processed the join
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Force reload projects to show the newly joined project
+        setState((prev) => ({ ...prev, currentPage: 1 }));
+        await loadProjects({
+          search: state.searchQuery || undefined,
+          status: state.filterStatus === "all" ? undefined : state.filterStatus,
+          page: 1,
+          limit: 12,
+        });
+      } else {
+        throw new Error(response.message || "Failed to join project");
+      }
+    } catch (error) {
+      console.error("Join project error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to join project";
+      toast.error(errorMessage);
+      throw error; // Re-throw so the modal can handle it
+    } finally {
+      setState((prev) => ({ ...prev, joinLoading: false }));
+    }
   };
 
   const containerVariants = {
@@ -305,6 +366,16 @@ const ProjectsPage: React.FC = () => {
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Project
+              </Button>
+              <Button
+                onClick={() =>
+                  setState((prev) => ({ ...prev, showJoinModal: true }))
+                }
+                variant="outline"
+                className="border-chalk-primary-300 text-chalk-primary-700 hover:bg-chalk-primary-50"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Join Project
               </Button>
             </div>
           </div>
@@ -501,6 +572,14 @@ const ProjectsPage: React.FC = () => {
           setState((prev) => ({ ...prev, showCreateModal: open }))
         }
         onProjectCreated={handleProjectCreated}
+      />
+
+      {/* Join Project Modal */}
+      <JoinProjectModal
+        isOpen={state.showJoinModal}
+        onClose={() => setState((prev) => ({ ...prev, showJoinModal: false }))}
+        onJoinProject={handleJoinProject}
+        isLoading={state.joinLoading}
       />
     </div>
   );

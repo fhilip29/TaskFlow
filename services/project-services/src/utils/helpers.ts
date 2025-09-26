@@ -1,4 +1,5 @@
 import QRCode from "qrcode";
+import mongoose from "mongoose";
 
 /**
  * Generate QR code for project invitation
@@ -85,10 +86,17 @@ export const formatProjectResponse = (project: any, userDetails?: any): any => {
  * Build MongoDB query from filters
  */
 export const buildProjectQuery = (filters: any, userId: string): any => {
+  // Convert userId to ObjectId for proper matching
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
   const query: any = {
-    "members.userId": userId,
+    "members.userId": userObjectId,
     "members.status": "active",
   };
+
+  console.log("[DEBUG] Building project query for userId:", userId);
+  console.log("[DEBUG] UserObjectId:", userObjectId);
+  console.log("[DEBUG] Query object:", JSON.stringify(query, null, 2));
 
   if (filters.status && filters.status !== "all") {
     query.status = filters.status;
@@ -103,6 +111,7 @@ export const buildProjectQuery = (filters: any, userId: string): any => {
     ];
   }
 
+  console.log("[DEBUG] Final query:", JSON.stringify(query, null, 2));
   return query;
 };
 

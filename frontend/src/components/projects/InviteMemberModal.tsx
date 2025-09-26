@@ -178,7 +178,7 @@ export function InviteMemberModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-chalk-panel border-chalk-border">
+      <DialogContent className="sm:max-w-[500px] bg-white border-chalk-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-chalk-text">
             <UserPlus className="h-5 w-5 text-chalk-primary-500" />

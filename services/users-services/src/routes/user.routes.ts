@@ -10,6 +10,7 @@ import {
   updateUserPreferences,
   deactivateAccount,
   changePassword,
+  getUsersByIds,
 } from "../controllers/user.controller";
 
 const router = express.Router();
@@ -54,7 +55,10 @@ const upload = multer({
   },
 });
 
-// All routes require authentication
+// Batch user retrieval (no auth required for service-to-service)
+router.post("/batch", getUsersByIds);
+
+// All other routes require authentication
 router.use(authenticateToken);
 
 // User profile routes

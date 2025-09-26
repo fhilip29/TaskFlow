@@ -147,7 +147,7 @@ app.get("/api/info", (_req: Request, res: Response) => {
   });
 });
 
-// ✅ 404 handler for all unmatched routes
+// ✅ 404 handler for all unmatched routes (must be last)
 app.use((_req: Request, res: Response) => {
   res.status(404).json({
     success: false,

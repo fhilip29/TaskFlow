@@ -126,10 +126,11 @@ projectSchema.index({ status: 1, updatedAt: -1 });
 // Pre-save middleware to add creator as admin member
 projectSchema.pre("save", async function (next) {
   if (this.isNew) {
-    // Add creator as admin member
+    // Add creator as admin member with a placeholder email
+    // The controller should set the proper email before saving
     this.members.push({
       userId: this.createdBy,
-      email: "", // Will be populated by controller
+      email: "placeholder@email.com", // Temporary placeholder - will be updated by controller
       role: "admin",
       joinedAt: new Date(),
       status: "active",

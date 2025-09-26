@@ -1,4 +1,5 @@
 import { Response } from "express";
+import mongoose from "mongoose";
 import { Project } from "../models/Project";
 import {
   UserService,
@@ -234,9 +235,22 @@ export const joinProjectByCode = async (
     // Check if user is already a member
     const existingMember = project.members.find(
       (m) =>
-        m.userId.toString() === userId ||
+        m.userId?.toString() === userId?.toString() ||
         m.email.toLowerCase() === user.email.toLowerCase()
     );
+
+    console.log("[DEBUG] Existing member check:", {
+      userId,
+      userEmail: user.email,
+      projectMembersCount: project.members.length,
+      existingMember: existingMember
+        ? {
+            userId: existingMember.userId?.toString(),
+            email: existingMember.email,
+            status: existingMember.status,
+          }
+        : null,
+    });
 
     if (existingMember) {
       if (existingMember.status === "active") {
@@ -248,15 +262,21 @@ export const joinProjectByCode = async (
         return;
       } else {
         // Update existing member to active
-        existingMember.userId = userId as any;
+        existingMember.userId = new mongoose.Types.ObjectId(userId);
         existingMember.email = user.email;
         existingMember.status = "active";
         existingMember.joinedAt = new Date();
       }
     } else {
       // Add as new member
+      console.log("[DEBUG] Adding new member:", {
+        userId: userId,
+        email: user.email,
+        fullName: user.fullName,
+      });
+
       project.members.push({
-        userId: userId as any,
+        userId: new mongoose.Types.ObjectId(userId),
         email: user.email,
         role: "member",
         joinedAt: new Date(),
@@ -264,7 +284,18 @@ export const joinProjectByCode = async (
       } as any);
     }
 
+    console.log(
+      "[DEBUG] Project members after update:",
+      project.members.map((m) => ({
+        userId: m.userId.toString(),
+        email: m.email,
+        status: m.status,
+        role: m.role,
+      }))
+    );
+
     await project.save();
+    console.log("[DEBUG] Project saved successfully");
 
     const response = successResponse(
       { projectId: project._id.toString() },

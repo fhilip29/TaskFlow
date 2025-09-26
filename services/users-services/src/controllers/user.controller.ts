@@ -432,3 +432,58 @@ export const changePassword = async (
     });
   }
 };
+
+// Get users by IDs (batch request)
+export const getUsersByIds = async (
+  req: AuthenticatedRequest,
+  res: Response<ApiResponse<UserProfileResponse[]>>
+): Promise<void> => {
+  try {
+    const { userIds } = req.body;
+
+    if (!userIds || !Array.isArray(userIds)) {
+      res.status(400).json({
+        success: false,
+        message: "userIds array is required",
+      });
+      return;
+    }
+
+    const users = await User.find({ _id: { $in: userIds } }).select(
+      "-password -__v"
+    );
+
+    const userProfiles: UserProfileResponse[] = users.map((user) => ({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      isVerified: user.isVerified,
+      profileImage: user.profileImage,
+      phoneNumber: user.phoneNumber,
+      bio: user.bio,
+      gender: user.gender,
+      dateOfBirth: user.dateOfBirth,
+      address: user.address,
+      preferences: user.preferences,
+      isActive: user.isActive,
+      lastLogin: user.lastLogin,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data: userProfiles,
+    });
+  } catch (error) {
+    console.error("Error getting users by IDs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
