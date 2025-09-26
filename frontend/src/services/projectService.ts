@@ -288,8 +288,20 @@ class ProjectService {
   }
 
   // Member management
-  async getProjectMembers(projectId: string): Promise<MembersResponse> {
-    return this.makeRequest<MembersResponse>(`/projects/${projectId}/members`);
+  async getProjectMembers(
+    projectId: string,
+    options?: { status?: string }
+  ): Promise<MembersResponse> {
+    const queryParams = new URLSearchParams();
+    if (options?.status) {
+      queryParams.append("status", options.status);
+    }
+    const queryString = queryParams.toString();
+    const url = queryString
+      ? `/projects/${projectId}/members?${queryString}`
+      : `/projects/${projectId}/members`;
+
+    return this.makeRequest<MembersResponse>(url);
   }
 
   async inviteMember(

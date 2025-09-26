@@ -31,6 +31,13 @@ const projectMemberSchema = new Schema<IProjectMember>({
     enum: ["active", "invited", "removed"],
     default: "invited",
   },
+  lastActive: {
+    type: Date,
+  },
+  invitationSentAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // Project schema

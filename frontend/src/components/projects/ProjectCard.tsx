@@ -5,7 +5,17 @@ import { IProject, IProjectListItem } from "@/types/project";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Users, Calendar, MoreVertical, Eye, Edit, Trash2 } from "lucide-react";
+import {
+  Users,
+  Calendar,
+  MoreVertical,
+  Eye,
+  Edit,
+  Trash2,
+  UserCheck,
+  Clock,
+  Mail,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { AdminAvatars } from "./AdminAvatars";
 
 const MotionCard = motion(Card);
 
@@ -44,6 +55,36 @@ export function ProjectCard({
       return project.members?.length || 0;
     }
     return (project as IProjectListItem).memberCount || 0;
+  };
+
+  const getActiveMembers = () => {
+    if (isFullProject(project)) {
+      return project.members?.filter((m) => m.status === "active").length || 0;
+    }
+    return (project as IProjectListItem).activeMembers || 0;
+  };
+
+  const getPendingInvites = () => {
+    if (isFullProject(project)) {
+      return project.members?.filter((m) => m.status === "invited").length || 0;
+    }
+    return (project as IProjectListItem).pendingInvites || 0;
+  };
+
+  const getAdmins = () => {
+    if (isFullProject(project)) {
+      return (
+        project.members
+          ?.filter((m) => m.role === "admin" && m.status === "active")
+          .map((m) => ({
+            _id: m.userId,
+            fullName: m.user.name,
+            email: m.user.email,
+            profileImage: m.user.avatar,
+          })) || []
+      );
+    }
+    return (project as IProjectListItem).admins || [];
   };
 
   const getProgress = () => {
@@ -122,9 +163,24 @@ export function ProjectCard({
                       project.status.replace("_", " ").slice(1)}
                   </Badge>
 
-                  <div className="flex items-center gap-2 text-chalk-text-2">
-                    <Users className="h-4 w-4" />
-                    <span className="text-sm">{getMemberCount()}</span>
+                  {/* Admin Avatars */}
+                  <AdminAvatars admins={getAdmins()} size="sm" maxDisplay={2} />
+
+                  {/* Member Statistics */}
+                  <div className="flex items-center gap-4 text-chalk-text-2">
+                    <div className="flex items-center gap-1">
+                      <UserCheck className="h-4 w-4" />
+                      <span className="text-sm">{getActiveMembers()}</span>
+                    </div>
+
+                    {getPendingInvites() > 0 && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4 text-orange-500" />
+                        <span className="text-sm text-orange-600">
+                          {getPendingInvites()}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="w-24">
@@ -281,6 +337,11 @@ export function ProjectCard({
         </CardHeader>
 
         <CardContent className="pt-0">
+          {/* Admin Avatars Section */}
+          <div className="mb-4">
+            <AdminAvatars admins={getAdmins()} size="md" maxDisplay={3} />
+          </div>
+
           {/* Status Badges */}
           <div className="flex flex-wrap gap-2 mb-4">
             <Badge className={getStatusColor(project.status)} variant="outline">
@@ -301,27 +362,43 @@ export function ProjectCard({
             <Progress value={getProgress()} className="h-2" />
           </div>
 
-          {/* Stats Section */}
+          {/* Enhanced Stats Section */}
           <div className="grid grid-cols-2 gap-4 text-center">
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-1 text-chalk-text-2">
-                <Users className="w-3 h-3" />
-                <span className="text-xs">Members</span>
+                <UserCheck className="w-3 h-3 text-green-500" />
+                <span className="text-xs">Active</span>
               </div>
               <span className="text-sm font-semibold text-chalk-text">
-                {getMemberCount()}
+                {getActiveMembers()}
               </span>
             </div>
+
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-1 text-chalk-text-2">
-                <Calendar className="w-3 h-3" />
-                <span className="text-xs">Updated</span>
+                {getPendingInvites() > 0 ? (
+                  <Clock className="w-3 h-3 text-orange-500" />
+                ) : (
+                  <Calendar className="w-3 h-3" />
+                )}
+                <span className="text-xs">
+                  {getPendingInvites() > 0 ? "Pending" : "Updated"}
+                </span>
               </div>
-              <span className="text-sm font-semibold text-chalk-text">
-                {new Date(project.updatedAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })}
+              <span
+                className={cn(
+                  "text-sm font-semibold",
+                  getPendingInvites() > 0
+                    ? "text-orange-600"
+                    : "text-chalk-text"
+                )}
+              >
+                {getPendingInvites() > 0
+                  ? getPendingInvites()
+                  : new Date(project.updatedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}
               </span>
             </div>
           </div>

@@ -32,6 +32,30 @@ export interface IProjectMember {
   joinedAt: Date;
   invitedBy?: Types.ObjectId;
   status: "active" | "invited" | "removed";
+  lastActive?: Date;
+  invitationSentAt?: Date;
+}
+
+// Member details with user info for responses
+export interface MemberDetails {
+  _id: string;
+  userId: string;
+  user: {
+    _id: string;
+    fullName: string;
+    email: string;
+    avatar?: string;
+  };
+  role: "admin" | "member" | "viewer";
+  status: "active" | "invited" | "removed";
+  joinedAt: Date;
+  invitedBy?: {
+    _id: string;
+    fullName: string;
+    email: string;
+  };
+  lastActive?: Date;
+  invitationSentAt?: Date;
 }
 
 // Project interface
@@ -142,12 +166,23 @@ export interface ProjectListResponse {
     _id: string;
     fullName: string;
     email: string;
+    avatar?: string;
   };
+  admins: Array<{
+    _id: string;
+    fullName: string;
+    email: string;
+    avatar?: string;
+  }>;
   role: string;
   memberCount: number;
+  activeMembers: number;
+  pendingInvites: number;
   taskCount: number;
   progress: number;
   status: string;
+  invitationCode: string;
+  qrCodeUrl?: string;
   createdAt?: Date;
   updatedAt: Date;
 }
@@ -160,6 +195,14 @@ export interface MemberResponse {
   role: string;
   joinedAt: Date;
   status: string;
+  isOnline?: boolean;
+  lastActive?: Date;
+  invitationSentAt?: Date;
+  invitedBy?: {
+    userId: string;
+    fullName: string;
+    profileImage?: string;
+  };
 }
 
 // Service interfaces
@@ -168,6 +211,8 @@ export interface UserData {
   email: string;
   fullName: string;
   profileImage?: string;
+  isOnline?: boolean;
+  lastActive?: Date;
 }
 
 export interface UserServiceResponse {

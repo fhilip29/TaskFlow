@@ -133,6 +133,7 @@ export const inviteMember = async (
       joinedAt: new Date(),
       invitedBy: userId as any,
       status: "invited" as const,
+      invitationSentAt: new Date(),
     };
 
     if (existingMember) {
@@ -141,6 +142,7 @@ export const inviteMember = async (
       existingMember.joinedAt = newMember.joinedAt;
       existingMember.invitedBy = newMember.invitedBy as any;
       existingMember.status = newMember.status;
+      existingMember.invitationSentAt = newMember.invitationSentAt;
     } else {
       // Add new member
       project.members.push(newMember as any);
@@ -282,7 +284,7 @@ export const joinProjectByCode = async (
 };
 
 /**
- * Get project members
+ * Get project members with detailed information
  * GET /api/projects/:projectId/members
  */
 export const getProjectMembers = async (
@@ -292,6 +294,7 @@ export const getProjectMembers = async (
   try {
     const projectId = req.params.projectId;
     const userId = req.user?.userId;
+    const { status } = req.query; // Filter by status: 'active', 'invited', 'removed'
 
     if (!isValidObjectId(projectId)) {
       const { response, statusCode } = errorResponse("Invalid project ID", 400);
@@ -313,21 +316,43 @@ export const getProjectMembers = async (
       return;
     }
 
-    // Get user details for all members
-    const memberIds = project.members
+    // Filter members by status if provided
+    let filteredMembers = project.members;
+    if (status && typeof status === "string") {
+      filteredMembers = project.members.filter((m) => m.status === status);
+    }
+
+    // Get user details for all members with userId
+    const memberIds = filteredMembers
       .filter((m) => m.userId)
       .map((m) => m.userId.toString());
 
     const membersResult = await UserService.getUsersByIds(memberIds);
     const membersData = membersResult.success ? membersResult.data : [];
 
-    // Format members response
-    const members: MemberResponse[] = project.members.map((member) => {
+    // Get inviter details for invited members
+    const inviterIds = filteredMembers
+      .filter((m) => m.invitedBy && m.status === "invited")
+      .map((m) => m.invitedBy!.toString());
+
+    const uniqueInviterIds = [...new Set(inviterIds)];
+    const invitersResult = await UserService.getUsersByIds(uniqueInviterIds);
+    const invitersData = invitersResult.success ? invitersResult.data : [];
+
+    // Format members response with enhanced details
+    const members: MemberResponse[] = filteredMembers.map((member) => {
       const userData = membersData
         ? membersData.find((u: any) => u._id === member.userId?.toString())
         : null;
 
-      return {
+      const inviterData =
+        member.invitedBy && invitersData
+          ? invitersData.find(
+              (u: any) => u._id === member.invitedBy!.toString()
+            )
+          : null;
+
+      const memberResponse: MemberResponse = {
         userId: member.userId?.toString() || "",
         email: member.email,
         fullName: userData?.fullName || "",
@@ -335,7 +360,28 @@ export const getProjectMembers = async (
         role: member.role,
         joinedAt: member.joinedAt,
         status: member.status,
+        isOnline: userData?.isOnline || false,
+        lastActive: member.lastActive || userData?.lastActive,
       };
+
+      // Add invitation details for invited members
+      if (member.status === "invited") {
+        memberResponse.invitationSentAt = member.invitationSentAt;
+        memberResponse.invitedBy = {
+          userId: member.invitedBy?.toString() || "",
+          fullName: inviterData?.fullName || "Unknown",
+          profileImage: inviterData?.profileImage,
+        };
+      }
+
+      return memberResponse;
+    });
+
+    // Sort members: admins first, then by join date
+    members.sort((a, b) => {
+      if (a.role === "admin" && b.role !== "admin") return -1;
+      if (b.role === "admin" && a.role !== "admin") return 1;
+      return new Date(a.joinedAt).getTime() - new Date(b.joinedAt).getTime();
     });
 
     const response = successResponse(

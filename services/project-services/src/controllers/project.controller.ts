@@ -148,8 +148,25 @@ export const getUserProjects = async (
     const creatorIds = [
       ...new Set(projects.map((p: any) => p.createdBy.toString())),
     ];
-    const creatorsResult = await UserService.getUsersByIds(creatorIds);
+
+    // Get all admin user IDs for all projects
+    const adminIds = [
+      ...new Set(
+        projects.flatMap((p: any) =>
+          p.members
+            .filter((m: any) => m.role === "admin" && m.status === "active")
+            .map((m: any) => m.userId.toString())
+        )
+      ),
+    ];
+
+    const [creatorsResult, adminsResult] = await Promise.all([
+      UserService.getUsersByIds(creatorIds),
+      UserService.getUsersByIds(adminIds),
+    ]);
+
     const creatorsData = creatorsResult.success ? creatorsResult.data : [];
+    const adminsData = adminsResult.success ? adminsResult.data : [];
 
     // Format response
     const projectList: ProjectListResponse[] = projects.map((project) => {
@@ -162,6 +179,28 @@ export const getUserProjects = async (
         (creator: any) => creator._id === project.createdBy.toString()
       );
 
+      // Get admin members info
+      const projectAdmins = project.members
+        .filter((m: any) => m.role === "admin" && m.status === "active")
+        .map((adminMember: any) => {
+          const adminInfo = adminsData?.find(
+            (admin: any) => admin._id === adminMember.userId.toString()
+          );
+          return {
+            _id: adminMember.userId.toString(),
+            fullName: adminInfo?.fullName || "Unknown User",
+            email: adminInfo?.email || adminMember.email,
+            avatar: adminInfo?.profileImage,
+          };
+        });
+
+      const activeMembers = project.members.filter(
+        (m: any) => m.status === "active"
+      ).length;
+      const pendingInvites = project.members.filter(
+        (m: any) => m.status === "invited"
+      ).length;
+
       return {
         _id: project._id.toString(),
         name: project.name,
@@ -170,13 +209,18 @@ export const getUserProjects = async (
           _id: project.createdBy.toString(),
           fullName: creatorInfo?.fullName || "Unknown User",
           email: creatorInfo?.email || "",
+          avatar: creatorInfo?.profileImage,
         },
+        admins: projectAdmins,
         role: userMember?.role || "viewer",
-        memberCount: project.members.filter((m: any) => m.status === "active")
-          .length,
+        memberCount: project.members.length,
+        activeMembers,
+        pendingInvites,
         taskCount: project.metadata.totalTasks,
         progress: project.metadata.progress,
         status: project.status,
+        invitationCode: project.invitationCode,
+        qrCodeUrl: project.qrCodeUrl,
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
       };

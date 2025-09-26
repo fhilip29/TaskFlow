@@ -3,6 +3,7 @@
 export interface IProjectMember {
   id?: string;
   userId: string;
+  email: string;
   user: {
     name: string;
     email: string;
@@ -12,6 +13,14 @@ export interface IProjectMember {
   joinedAt: Date;
   invitedBy?: string;
   status: "active" | "invited" | "removed";
+  isOnline?: boolean;
+  lastActive?: Date;
+  invitationSentAt?: Date;
+  invitedByInfo?: {
+    userId: string;
+    fullName: string;
+    profileImage?: string;
+  };
 }
 
 export interface IProject {
@@ -57,6 +66,16 @@ export interface IProjectListItem {
   status: string;
   createdAt?: Date;
   updatedAt: Date;
+  // Enhanced member information
+  admins: Array<{
+    _id: string;
+    fullName: string;
+    email: string;
+    profileImage?: string;
+  }>;
+  activeMembers: number;
+  pendingInvites: number;
+  invitationCode?: string;
 }
 
 // Request DTOs
@@ -82,7 +101,7 @@ export interface UpdateProjectRequest {
 export interface InviteMemberRequest {
   email?: string;
   userId?: string;
-  role?: "member" | "viewer";
+  role?: "admin" | "member" | "viewer";
 }
 
 export interface UpdateMemberRoleRequest {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,9 +18,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, UserPlus, Mail, Copy, QrCode } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Loader2,
+  UserPlus,
+  Mail,
+  Copy,
+  QrCode,
+  X,
+  Clock,
+  Crown,
+} from "lucide-react";
 import { projectService } from "@/services/projectService";
 import { toast } from "sonner";
+import { IProjectMember } from "@/types/project";
 
 interface InviteMemberModalProps {
   open: boolean;
@@ -34,7 +47,7 @@ interface InviteMemberModalProps {
 
 interface FormData {
   email: string;
-  role: "member" | "viewer";
+  role: "admin" | "member" | "viewer";
 }
 
 interface FormErrors {
@@ -51,12 +64,38 @@ export function InviteMemberModal({
   onMemberInvited,
 }: InviteMemberModalProps) {
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"invite" | "share">("invite");
+  const [loadingMembers, setLoadingMembers] = useState(false);
+  const [activeTab, setActiveTab] = useState<"invite" | "share" | "pending">(
+    "invite"
+  );
+  const [pendingMembers, setPendingMembers] = useState<IProjectMember[]>([]);
   const [formData, setFormData] = useState<FormData>({
     email: "",
     role: "member",
   });
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // Fetch pending invites when modal opens
+  useEffect(() => {
+    if (open) {
+      fetchPendingInvites();
+    }
+  }, [open, projectId]);
+
+  const fetchPendingInvites = async () => {
+    try {
+      setLoadingMembers(true);
+      const response = await projectService.getProjectMembers(projectId, {
+        status: "invited",
+      });
+      setPendingMembers(response.data || []);
+    } catch (error) {
+      console.error("Error fetching pending invites:", error);
+      setPendingMembers([]);
+    } finally {
+      setLoadingMembers(false);
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -163,6 +202,23 @@ export function InviteMemberModal({
             Send Invitation
           </button>
           <button
+            onClick={() => setActiveTab("pending")}
+            className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
+              activeTab === "pending"
+                ? "bg-chalk-panel text-chalk-text shadow-sm"
+                : "text-chalk-text-2 hover:text-chalk-text"
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              Pending
+              {pendingMembers.length > 0 && (
+                <Badge variant="secondary" className="h-5 w-5 p-0 text-xs">
+                  {pendingMembers.length}
+                </Badge>
+              )}
+            </div>
+          </button>
+          <button
             onClick={() => setActiveTab("share")}
             className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
               activeTab === "share"
@@ -210,6 +266,17 @@ export function InviteMemberModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-chalk-panel border-chalk-border">
+                  <SelectItem value="admin">
+                    <div className="flex flex-col items-start">
+                      <div className="flex items-center gap-2">
+                        <Crown className="h-3 w-3 text-yellow-500" />
+                        <span className="font-medium">Admin</span>
+                      </div>
+                      <span className="text-xs text-chalk-text-2">
+                        Full project access, can manage members
+                      </span>
+                    </div>
+                  </SelectItem>
                   <SelectItem value="member">
                     <div className="flex flex-col items-start">
                       <span className="font-medium">Member</span>
@@ -260,6 +327,103 @@ export function InviteMemberModal({
               </Button>
             </div>
           </form>
+        ) : activeTab === "pending" ? (
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-chalk-text">
+                Pending Invitations ({pendingMembers.length})
+              </h4>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={fetchPendingInvites}
+                disabled={loadingMembers}
+              >
+                {loadingMembers ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  "Refresh"
+                )}
+              </Button>
+            </div>
+
+            {loadingMembers ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-chalk-text-2" />
+              </div>
+            ) : pendingMembers.length === 0 ? (
+              <div className="text-center py-8">
+                <Clock className="h-8 w-8 text-chalk-text-2 mx-auto mb-2" />
+                <p className="text-chalk-text-2 text-sm">
+                  No pending invitations
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {pendingMembers.map((member) => (
+                  <div
+                    key={`${member.userId}-${member.email}`}
+                    className="flex items-center justify-between p-3 bg-chalk-subtle/20 rounded-lg border border-chalk-border"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={member.user?.avatar} />
+                        <AvatarFallback className="text-xs">
+                          {member.email.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-chalk-text">
+                          {member.user?.name || member.email}
+                        </p>
+                        <p className="text-xs text-chalk-text-2">
+                          {member.email}
+                        </p>
+                        {member.invitationSentAt && (
+                          <p className="text-xs text-chalk-text-3 mt-1">
+                            Invited{" "}
+                            {new Date(
+                              member.invitationSentAt
+                            ).toLocaleDateString()}
+                            {member.invitedByInfo && (
+                              <span> by {member.invitedByInfo.fullName}</span>
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs">
+                        {member.role === "admin" && (
+                          <Crown className="h-3 w-3 mr-1 text-yellow-500" />
+                        )}
+                        {member.role}
+                      </Badge>
+                      <Badge
+                        variant="secondary"
+                        className="text-xs bg-orange-100 text-orange-700"
+                      >
+                        <Clock className="h-3 w-3 mr-1" />
+                        Pending
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Separator />
+
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
         ) : activeTab === "invite" && !canInvite ? (
           <div className="text-center py-8">
             <p className="text-chalk-text-2">
