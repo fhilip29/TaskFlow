@@ -138,11 +138,17 @@ export interface ProjectListResponse {
   _id: string;
   name: string;
   description?: string;
+  createdBy?: {
+    _id: string;
+    fullName: string;
+    email: string;
+  };
   role: string;
   memberCount: number;
   taskCount: number;
   progress: number;
   status: string;
+  createdAt?: Date;
   updatedAt: Date;
 }
 

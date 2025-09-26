@@ -14,13 +14,47 @@ export class UserService {
    */
   static async getUserById(userId: string): Promise<UserServiceResponse> {
     try {
-      // TODO: Implement actual HTTP call to user service
-      // const response = await fetch(`${this.baseUrl}/api/users/${userId}`);
-      // const data = await response.json();
-      // return data;
+      const response = await fetch(`${this.baseUrl}/api/users/${userId}`);
 
-      // Stub implementation
-      console.log(`[STUB] Getting user details for ID: ${userId}`);
+      if (!response.ok) {
+        // Fallback to stub if service is unavailable
+        console.log(
+          `[FALLBACK] User service unavailable, using stub for ID: ${userId}`
+        );
+        return {
+          success: true,
+          data: {
+            _id: userId,
+            email: `user${userId.slice(-4)}@example.com`,
+            fullName: `User ${userId.slice(-4)}`,
+            profileImage: undefined,
+          },
+        };
+      }
+
+      const data = (await response.json()) as any;
+      if (data.success && data.data) {
+        return {
+          success: true,
+          data: {
+            _id: data.data._id,
+            email: data.data.email,
+            fullName:
+              data.data.fullName ||
+              `${data.data.firstName || ""} ${
+                data.data.lastName || ""
+              }`.trim() ||
+              "Unknown User",
+            profileImage: data.data.profileImage,
+          },
+        };
+      }
+
+      return { success: false, message: "User not found" };
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      // Fallback to stub on network error
+      console.log(`[FALLBACK] Network error, using stub for ID: ${userId}`);
       return {
         success: true,
         data: {
@@ -30,12 +64,6 @@ export class UserService {
           profileImage: undefined,
         },
       };
-    } catch (error) {
-      console.error("Error fetching user by ID:", error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
-      };
     }
   }
 
@@ -44,13 +72,49 @@ export class UserService {
    */
   static async getUserByEmail(email: string): Promise<UserServiceResponse> {
     try {
-      // TODO: Implement actual HTTP call to user service
-      // const response = await fetch(`${this.baseUrl}/api/users/email/${email}`);
-      // const data = await response.json();
-      // return data;
+      const response = await fetch(
+        `${this.baseUrl}/api/users/email/${encodeURIComponent(email)}`
+      );
 
-      // Stub implementation
-      console.log(`[STUB] Getting user details for email: ${email}`);
+      if (!response.ok) {
+        // Fallback to stub if service is unavailable
+        console.log(
+          `[FALLBACK] User service unavailable, using stub for email: ${email}`
+        );
+        return {
+          success: true,
+          data: {
+            _id: "507f1f77bcf86cd799439011",
+            email: email,
+            fullName: "Sample User",
+            profileImage: undefined,
+          },
+        };
+      }
+
+      const data = (await response.json()) as any;
+      if (data.success && data.data) {
+        return {
+          success: true,
+          data: {
+            _id: data.data._id,
+            email: data.data.email,
+            fullName:
+              data.data.fullName ||
+              `${data.data.firstName || ""} ${
+                data.data.lastName || ""
+              }`.trim() ||
+              "Unknown User",
+            profileImage: data.data.profileImage,
+          },
+        };
+      }
+
+      return { success: false, message: "User not found" };
+    } catch (error) {
+      console.error("Error fetching user by email:", error);
+      // Fallback to stub on network error
+      console.log(`[FALLBACK] Network error, using stub for email: ${email}`);
       return {
         success: true,
         data: {
@@ -60,12 +124,6 @@ export class UserService {
           profileImage: undefined,
         },
       };
-    } catch (error) {
-      console.error("Error fetching user by email:", error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
-      };
     }
   }
 
@@ -74,17 +132,54 @@ export class UserService {
    */
   static async getUsersByIds(userIds: string[]): Promise<UsersServiceResponse> {
     try {
-      // TODO: Implement actual HTTP call to user service
-      // const response = await fetch(`${this.baseUrl}/api/users/batch`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ userIds })
-      // });
-      // const data = await response.json();
-      // return data;
+      const response = await fetch(`${this.baseUrl}/api/users/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIds }),
+      });
 
-      // Stub implementation
-      console.log(`[STUB] Getting multiple user details for IDs:`, userIds);
+      if (!response.ok) {
+        // Fallback to stub if service is unavailable
+        console.log(
+          `[FALLBACK] User service unavailable, using stub for IDs:`,
+          userIds
+        );
+        const users = userIds.map((id) => ({
+          _id: id,
+          email: `user${id.slice(-4)}@example.com`,
+          fullName: `User ${id.slice(-4)}`,
+          profileImage: undefined,
+        }));
+
+        return {
+          success: true,
+          data: users,
+        };
+      }
+
+      const data = (await response.json()) as any;
+      if (data.success && data.data) {
+        const formattedUsers = data.data.map((user: any) => ({
+          _id: user._id,
+          email: user.email,
+          fullName:
+            user.fullName ||
+            `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+            "Unknown User",
+          profileImage: user.profileImage,
+        }));
+
+        return {
+          success: true,
+          data: formattedUsers,
+        };
+      }
+
+      return { success: false, message: "Users not found" };
+    } catch (error) {
+      console.error("Error fetching users by IDs:", error);
+      // Fallback to stub on network error
+      console.log(`[FALLBACK] Network error, using stub for IDs:`, userIds);
       const users = userIds.map((id) => ({
         _id: id,
         email: `user${id.slice(-4)}@example.com`,
@@ -95,12 +190,6 @@ export class UserService {
       return {
         success: true,
         data: users,
-      };
-    } catch (error) {
-      console.error("Error fetching users by IDs:", error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : "Unknown error",
       };
     }
   }

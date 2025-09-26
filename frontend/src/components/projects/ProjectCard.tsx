@@ -105,6 +105,12 @@ export function ProjectCard({
                       {project.description}
                     </p>
                   )}
+                  {/* Show creator info */}
+                  {"createdBy" in project && project.createdBy && (
+                    <p className="text-xs text-chalk-text-3 mt-1">
+                      Created by {project.createdBy.fullName}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -214,6 +220,12 @@ export function ProjectCard({
               {project.description && (
                 <p className="text-sm text-chalk-text-2 mt-1 line-clamp-2">
                   {project.description}
+                </p>
+              )}
+              {/* Show creator info */}
+              {"createdBy" in project && project.createdBy && (
+                <p className="text-xs text-chalk-text-3 mt-2">
+                  Created by {project.createdBy.fullName}
                 </p>
               )}
             </div>

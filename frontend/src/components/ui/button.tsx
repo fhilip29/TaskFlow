@@ -7,7 +7,7 @@ const buttonVariants = cva(
   [
     // Base styles
     "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium",
-    "ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "ring-offset-chalk-bg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-chalk-primary-400 focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
     // Motion
     "transform active:scale-[0.98] hover:scale-[1.01] transition-transform",
@@ -18,31 +18,36 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          "bg-primary text-primary-foreground shadow-sm",
-          "hover:bg-primary/90",
-          "focus:bg-primary/90",
+          "bg-chalk-primary-600 text-white shadow-sm border border-chalk-primary-600",
+          "hover:bg-chalk-primary-700 hover:border-chalk-primary-700",
+          "focus:bg-chalk-primary-700 focus:border-chalk-primary-700",
+        ],
+        success: [
+          "bg-green-600 text-white shadow-sm border border-green-600",
+          "hover:bg-green-700 hover:border-green-700",
+          "focus:bg-green-700 focus:border-green-700",
         ],
         subtle: [
-          "bg-secondary text-secondary-foreground shadow-sm",
-          "hover:bg-secondary/80",
-          "focus:bg-secondary/80",
+          "bg-chalk-subtle text-chalk-text shadow-sm border border-chalk-border",
+          "hover:bg-chalk-hover hover:border-chalk-hover",
+          "focus:bg-chalk-hover focus:border-chalk-hover",
         ],
         outline: [
-          "border border-input bg-background text-foreground",
-          "hover:bg-accent hover:text-accent-foreground",
-          "focus:bg-accent",
+          "border border-chalk-border bg-chalk-panel text-chalk-text shadow-sm",
+          "hover:bg-chalk-hover hover:text-chalk-text hover:border-chalk-text-2",
+          "focus:bg-chalk-hover focus:border-chalk-text-2",
         ],
         ghost: [
-          "text-foreground hover:bg-accent hover:text-accent-foreground",
-          "focus:bg-accent",
+          "text-chalk-text hover:bg-chalk-hover hover:text-chalk-text",
+          "focus:bg-chalk-hover",
         ],
         destructive: [
-          "bg-destructive text-destructive-foreground shadow-sm",
-          "hover:bg-destructive/90",
-          "focus:bg-destructive/90",
+          "bg-red-600 text-white shadow-sm border border-red-600",
+          "hover:bg-red-700 hover:border-red-700",
+          "focus:bg-red-700 focus:border-red-700",
         ],
         link: [
-          "text-primary underline-offset-4 hover:underline",
+          "text-chalk-primary-600 underline-offset-4 hover:underline",
           "focus:underline",
         ],
       },

@@ -122,7 +122,7 @@ router.post("/", protect, validateRequest(createProjectSchema), createProject);
  *       401:
  *         description: Unauthorized
  */
-router.get("/", protect, validateQuery(paginationSchema), getUserProjects);
+router.get("/", protect, getUserProjects);
 
 /**
  * @swagger

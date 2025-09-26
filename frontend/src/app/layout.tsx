@@ -3,6 +3,7 @@ import { Source_Serif_4, Source_Sans_3, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "@/providers/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { Toaster } from "sonner";
 
 const sourceSerif = Source_Serif_4({
   variable: "--font-source-serif",
@@ -39,7 +40,19 @@ export default function RootLayout({
         className={`${sourceSans.variable} ${sourceSerif.variable} ${ibmPlexMono.variable} antialiased min-h-screen font-sans bg-background text-foreground`}
       >
         <AuthProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            {children}
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: "hsl(var(--chalk-panel))",
+                  border: "1px solid hsl(var(--chalk-border))",
+                  color: "hsl(var(--chalk-text))",
+                },
+              }}
+            />
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

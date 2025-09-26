@@ -103,12 +103,12 @@ export default function DashboardPage() {
     >
       {/* Welcome Header with Chalk Underline */}
       <MotionDiv variants={staggerItem} className="text-center space-y-4">
-        <h1 className="text-4xl font-serif text-foreground relative inline-block chalk-underline pb-2">
-          Welcome back, {user?.username}!
+        <h1 className="text-4xl font-serif text-chalk-text relative inline-block chalk-underline pb-2">
+          Welcome back, {user?.fullName || user?.username}!
         </h1>
-        <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-          Here&apos;s what&apos;s happening with your projects today. Stay
-          organized, stay productive.
+        <p className="text-base text-chalk-text-2 max-w-2xl mx-auto">
+          Here's what's happening with your projects today. Stay organized, stay
+          productive.
         </p>
       </MotionDiv>
 

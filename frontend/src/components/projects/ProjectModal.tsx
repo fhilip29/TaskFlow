@@ -109,11 +109,11 @@ export function ProjectModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
-    
+
     try {
       const requestData = {
         name: formData.name.trim(),
@@ -140,25 +140,30 @@ export function ProjectModal({
         onProjectCreated?.(response.data);
         toast.success("Project created successfully!");
       }
-      
+
       onOpenChange(false);
     } catch (error) {
       console.error("Error saving project:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to save project");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save project"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof FormData, value: string | boolean) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | boolean
+  ) => {
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field as keyof FormErrors]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [field]: undefined,
       }));
@@ -202,13 +207,18 @@ export function ProjectModal({
             </div>
 
             <div>
-              <Label htmlFor="description" className="text-chalk-text font-medium">
+              <Label
+                htmlFor="description"
+                className="text-chalk-text font-medium"
+              >
                 Description
               </Label>
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
                 placeholder="Describe what this project is about..."
                 rows={3}
                 className={`mt-1 bg-chalk-bg border-chalk-border focus:border-chalk-primary-400 resize-none ${
@@ -216,7 +226,9 @@ export function ProjectModal({
                 }`}
               />
               {errors.description && (
-                <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.description}
+                </p>
               )}
               <p className="text-chalk-text-2 text-xs mt-1">
                 {formData.description.length}/500 characters
@@ -242,7 +254,7 @@ export function ProjectModal({
                 }`}
               />
             </Button>
-            
+
             {showAdvanced && (
               <div className="mt-4 space-y-4 p-4 rounded-lg bg-chalk-subtle/30 border border-chalk-border">
                 {/* Public Project Toggle */}
@@ -283,7 +295,10 @@ export function ProjectModal({
 
                 {/* Maximum Members */}
                 <div>
-                  <Label htmlFor="maxMembers" className="text-chalk-text font-medium">
+                  <Label
+                    htmlFor="maxMembers"
+                    className="text-chalk-text font-medium"
+                  >
                     Maximum Members
                   </Label>
                   <Input
@@ -292,13 +307,17 @@ export function ProjectModal({
                     min="1"
                     max="1000"
                     value={formData.maxMembers}
-                    onChange={(e) => handleInputChange("maxMembers", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("maxMembers", e.target.value)
+                    }
                     className={`mt-1 bg-chalk-bg border-chalk-border focus:border-chalk-primary-400 ${
                       errors.maxMembers ? "border-red-500" : ""
                     }`}
                   />
                   {errors.maxMembers && (
-                    <p className="text-red-500 text-sm mt-1">{errors.maxMembers}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.maxMembers}
+                    </p>
                   )}
                   <p className="text-chalk-text-2 text-xs mt-1">
                     Set to 0 for unlimited members
@@ -314,7 +333,7 @@ export function ProjectModal({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 border-chalk-border bg-chalk-bg hover:bg-chalk-subtle text-chalk-text"
+              className="flex-1"
               disabled={loading}
             >
               Cancel
@@ -322,7 +341,8 @@ export function ProjectModal({
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-chalk-primary-500 hover:bg-chalk-primary-600 text-white"
+              variant="primary"
+              className="flex-1"
             >
               {loading ? (
                 <>
@@ -330,9 +350,7 @@ export function ProjectModal({
                   {isEditing ? "Updating..." : "Creating..."}
                 </>
               ) : (
-                <>
-                  {isEditing ? "Update Project" : "Create Project"}
-                </>
+                <>{isEditing ? "Update Project" : "Create Project"}</>
               )}
             </Button>
           </div>

@@ -15,6 +15,7 @@ import { motion } from "framer-motion";
 import { IProject, IProjectMember } from "@/types/project";
 import { projectService } from "@/services/projectService";
 import { ProjectModal } from "@/components/projects/ProjectModal";
+import { InviteMemberModal } from "@/components/projects/InviteMemberModal";
 import { MemberAvatar } from "@/components/projects/MemberAvatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -397,6 +398,22 @@ const ProjectDetailPage: React.FC = () => {
         }
         project={project}
         onProjectCreated={handleProjectUpdated}
+      />
+
+      {/* Invite Member Modal */}
+      <InviteMemberModal
+        open={state.showInviteModal}
+        onOpenChange={(open) =>
+          setState((prev) => ({ ...prev, showInviteModal: open }))
+        }
+        projectId={project._id}
+        projectName={project.name}
+        invitationCode={project.invitationCode}
+        canInvite={true} // TODO: Add proper permission check
+        onMemberInvited={() => {
+          loadProject();
+          setState((prev) => ({ ...prev, showInviteModal: false }));
+        }}
       />
     </div>
   );

@@ -16,6 +16,7 @@ const config: Config = {
           panel: "var(--chalk-panel)",
           subtle: "var(--chalk-subtle)",
           border: "var(--chalk-border)",
+          hover: "var(--chalk-primary-50)",
 
           // Text colors
           text: "var(--chalk-text)",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
   pageTransition,
   staggerContainer,
@@ -37,7 +38,10 @@ import {
   Phone,
   Calendar,
   MapPin,
+  Home,
+  Upload,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const MotionDiv = motion.div;
 
@@ -66,6 +70,8 @@ export default function SettingsPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<SettingsFormData>({
     fullName: user?.fullName || "",
@@ -129,13 +135,44 @@ export default function SettingsPage() {
     setLoading(true);
 
     try {
-      // API call would go here
+      // TODO: Replace with actual API call
+      // const updatedUser = await updateUserProfile(formData);
+
       console.log("Settings updated:", formData);
-      // Show success message
+
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      toast.success("Settings saved successfully!");
     } catch (error) {
       console.error("Failed to update settings:", error);
+      toast.error("Failed to save settings. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("File size must be less than 2MB");
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select an image file");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImage(e.target?.result as string);
+        // Don't show success toast here - only when user clicks save
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -149,6 +186,19 @@ export default function SettingsPage() {
             animate="animate"
             className="space-y-chalk-8"
           >
+            {/* Navigation */}
+            <div className="flex items-center gap-2 text-sm text-chalk-text-2 mb-6">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1 hover:text-chalk-text transition-colors"
+              >
+                <Home className="h-4 w-4" />
+                Dashboard
+              </Link>
+              <span>/</span>
+              <span className="text-chalk-text font-medium">Settings</span>
+            </div>
+
             {/* Header */}
             <div className="text-center space-y-4">
               <h1 className="text-chalk-h1 font-serif text-chalk-text relative inline-block chalk-underline pb-2">
@@ -213,11 +263,32 @@ export default function SettingsPage() {
                           </CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center gap-6">
-                          <div className="w-20 h-20 bg-chalk-primary400/20 rounded-full flex items-center justify-center">
-                            <User className="w-8 h-8 text-chalk-primary600" />
+                          <div className="w-20 h-20 bg-chalk-primary400/20 rounded-full flex items-center justify-center overflow-hidden">
+                            {profileImage ? (
+                              <img
+                                src={profileImage}
+                                alt="Profile"
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <User className="w-8 h-8 text-chalk-primary600" />
+                            )}
                           </div>
                           <div className="space-y-2">
-                            <Button variant="outline" size="sm">
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="border-chalk-border text-chalk-text hover:bg-chalk-hover"
+                            >
+                              <Upload className="w-4 h-4 mr-2" />
                               Change Picture
                             </Button>
                             <p className="text-chalk-small text-chalk-text2">
@@ -413,8 +484,9 @@ export default function SettingsPage() {
                   </Button>
                   <Button
                     type="submit"
+                    variant="success"
                     loading={loading}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-chalk-success hover:bg-green-700 text-white"
                   >
                     <Save className="w-4 h-4" />
                     Save Changes

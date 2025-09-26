@@ -144,22 +144,40 @@ export const getUserProjects = async (
       Project.countDocuments(query),
     ]);
 
+    // Get creator details for all projects
+    const creatorIds = [
+      ...new Set(projects.map((p: any) => p.createdBy.toString())),
+    ];
+    const creatorsResult = await UserService.getUsersByIds(creatorIds);
+    const creatorsData = creatorsResult.success ? creatorsResult.data : [];
+
     // Format response
     const projectList: ProjectListResponse[] = projects.map((project) => {
       const userMember = project.members.find(
         (m: any) => m.userId.toString() === userId && m.status === "active"
       );
 
+      // Find creator info
+      const creatorInfo = creatorsData?.find(
+        (creator: any) => creator._id === project.createdBy.toString()
+      );
+
       return {
         _id: project._id.toString(),
         name: project.name,
         description: project.description,
+        createdBy: {
+          _id: project.createdBy.toString(),
+          fullName: creatorInfo?.fullName || "Unknown User",
+          email: creatorInfo?.email || "",
+        },
         role: userMember?.role || "viewer",
         memberCount: project.members.filter((m: any) => m.status === "active")
           .length,
         taskCount: project.metadata.totalTasks,
         progress: project.metadata.progress,
         status: project.status,
+        createdAt: project.createdAt,
         updatedAt: project.updatedAt,
       };
     });

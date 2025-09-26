@@ -1,8 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Filter, Grid, List } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Filter,
+  Grid,
+  List,
+  Home,
+  ArrowLeft,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
   IProject,
   IProjectListItem,
@@ -46,23 +55,27 @@ const ProjectsPage: React.FC = () => {
     showCreateModal: false,
   });
 
-  const loadProjects = async () => {
+  const loadProjects = async (filters?: ProjectFilterOptions) => {
     try {
       setState((prev) => ({ ...prev, loading: true }));
 
-      const filters: ProjectFilterOptions = {
+      const queryFilters: ProjectFilterOptions = filters || {
         search: state.searchQuery || undefined,
         status: state.filterStatus === "all" ? undefined : state.filterStatus,
         page: state.currentPage,
         limit: 12,
       };
 
-      const response = await projectService.getProjects(filters);
+      const response = await projectService.getProjects(queryFilters);
+
+      // Handle response safely
+      const projectsData = response?.data || [];
+      const totalCount = response?.pagination?.total || projectsData.length;
 
       setState((prev) => ({
         ...prev,
-        projects: response.data,
-        totalProjects: response.data.length, // For now, until pagination is properly implemented
+        projects: Array.isArray(projectsData) ? projectsData : [],
+        totalProjects: totalCount,
         loading: false,
       }));
     } catch (error) {
@@ -73,8 +86,74 @@ const ProjectsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    loadProjects();
+    const filters = {
+      search: state.searchQuery || undefined,
+      status: state.filterStatus === "all" ? undefined : state.filterStatus,
+      page: state.currentPage,
+      limit: 12,
+    };
+    loadProjects(filters);
   }, [state.searchQuery, state.filterStatus, state.currentPage]);
+
+  // Development helper: auto-create token if none exists
+  useEffect(() => {
+    const initializeAuth = async () => {
+      if (
+        !localStorage.getItem("token") &&
+        process.env.NODE_ENV === "development"
+      ) {
+        try {
+          // Create a test user account
+          const registerResponse = await fetch(
+            "http://localhost:4000/api/auth/register",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fullName: "Test User",
+                email: "test@example.com",
+                password: "password123",
+              }),
+            }
+          );
+
+          // Login to get token
+          const loginResponse = await fetch(
+            "http://localhost:4000/api/auth/login",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: "test@example.com",
+                password: "password123",
+              }),
+            }
+          );
+
+          if (loginResponse.ok) {
+            const loginData = await loginResponse.json();
+            if (loginData.token) {
+              localStorage.setItem("token", loginData.token);
+              console.log("✅ Development token created");
+              // Reload projects with new token
+              const filters = {
+                search: state.searchQuery || undefined,
+                status:
+                  state.filterStatus === "all" ? undefined : state.filterStatus,
+                page: state.currentPage,
+                limit: 12,
+              };
+              loadProjects(filters);
+            }
+          }
+        } catch (error) {
+          console.log("ℹ️ Could not create development token, using mock data");
+        }
+      }
+    };
+
+    initializeAuth();
+  }, []);
 
   const handleSearch = (query: string) => {
     setState((prev) => ({
@@ -106,13 +185,14 @@ const ProjectsPage: React.FC = () => {
   });
 
   const handleProjectCreated = (project: IProject) => {
-    const listItem = convertToListItem(project);
-    setState((prev) => ({
-      ...prev,
-      projects: [listItem, ...prev.projects],
-      totalProjects: prev.totalProjects + 1,
-      showCreateModal: false,
-    }));
+    // Reload projects from backend to get the most up-to-date data
+    const filters = {
+      search: state.searchQuery || undefined,
+      status: state.filterStatus === "all" ? undefined : state.filterStatus,
+      page: state.currentPage,
+      limit: 12,
+    };
+    loadProjects(filters);
     toast.success("Project created successfully!");
   };
 
@@ -173,6 +253,19 @@ const ProjectsPage: React.FC = () => {
       {/* Header */}
       <div className="border-b border-chalk-border bg-chalk-panel/50">
         <div className="max-w-7xl mx-auto px-6 py-6">
+          {/* Navigation Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm text-chalk-text-2 mb-4">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1 hover:text-chalk-text transition-colors"
+            >
+              <Home className="h-4 w-4" />
+              Dashboard
+            </Link>
+            <span>/</span>
+            <span className="text-chalk-text font-medium">Projects</span>
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-chalk-text tracking-tight">
@@ -182,15 +275,23 @@ const ProjectsPage: React.FC = () => {
                 Manage and track your projects
               </p>
             </div>
-            <Button
-              onClick={() =>
-                setState((prev) => ({ ...prev, showCreateModal: true }))
-              }
-              className="bg-chalk-primary-500 hover:bg-chalk-primary-600 text-white shadow-sm"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Project
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" asChild>
+                <Link href="/dashboard">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Dashboard
+                </Link>
+              </Button>
+              <Button
+                onClick={() =>
+                  setState((prev) => ({ ...prev, showCreateModal: true }))
+                }
+                variant="primary"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Project
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -212,10 +313,7 @@ const ProjectsPage: React.FC = () => {
           {/* Filter Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="border-chalk-border bg-chalk-panel hover:bg-chalk-subtle"
-              >
+              <Button variant="outline">
                 <Filter className="h-4 w-4 mr-2" />
                 Status:{" "}
                 {state.filterStatus === "all"
@@ -329,7 +427,7 @@ const ProjectsPage: React.FC = () => {
                     onClick={() =>
                       setState((prev) => ({ ...prev, showCreateModal: true }))
                     }
-                    className="bg-chalk-primary-500 hover:bg-chalk-primary-600 text-white"
+                    variant="primary"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Create Project
@@ -354,7 +452,6 @@ const ProjectsPage: React.FC = () => {
                     currentPage: prev.currentPage - 1,
                   }))
                 }
-                className="border-chalk-border bg-chalk-panel hover:bg-chalk-subtle"
               >
                 Previous
               </Button>
@@ -374,7 +471,6 @@ const ProjectsPage: React.FC = () => {
                     currentPage: prev.currentPage + 1,
                   }))
                 }
-                className="border-chalk-border bg-chalk-panel hover:bg-chalk-subtle"
               >
                 Next
               </Button>

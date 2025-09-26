@@ -151,7 +151,8 @@ export const validateQuery = (schema: Joi.ObjectSchema) => {
       });
     }
 
-    req.query = value;
+    // Extend the request object with validated query parameters instead of replacing
+    Object.assign(req.query, value);
     next();
   };
 };
