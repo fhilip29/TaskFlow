@@ -130,16 +130,6 @@ export default function ProfileView() {
           </div>
           <div className="flex items-center gap-3">
             <Button
-              variant="outline"
-              asChild
-              className="border-chalk-border text-chalk-text hover:bg-chalk-hover"
-            >
-              <Link href="/dashboard/settings">
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </Link>
-            </Button>
-            <Button
               variant="primary"
               asChild
               className="bg-chalk-primary600 text-white hover:bg-chalk-primary700"

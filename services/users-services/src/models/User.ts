@@ -12,6 +12,7 @@ export interface IUser extends Document {
   _id: string;
   username: string;
   email: string;
+  password: string;
   fullName: string;
   role: "user" | "admin" | "manager";
   isVerified: boolean;
@@ -60,6 +61,12 @@ const userSchema = new Schema<IUser>(
         "Please add a valid email",
       ],
     },
+    password: {
+      type: String,
+      required: [true, "Please add a password"],
+      minlength: [6, "Password must be at least 6 characters long"],
+      select: false, // Don't include password in queries by default
+    },
     fullName: {
       type: String,
       required: [true, "Please add your full name"],
@@ -83,7 +90,14 @@ const userSchema = new Schema<IUser>(
     phoneNumber: {
       type: String,
       trim: true,
-      match: [/^(\+\d{1,3}[- ]?)?\d{10}$/, "Please enter a valid phone number"],
+      validate: {
+        validator: function (v: string) {
+          // Allow empty phone numbers or valid phone number patterns
+          if (!v || v === "") return true;
+          return /^(\+\d{1,3}[- ]?)?\d{10,15}$/.test(v);
+        },
+        message: "Please enter a valid phone number",
+      },
     },
     bio: {
       type: String,

@@ -126,6 +126,7 @@ export const updateProfileImage = async (token: string, imageFile: File) => {
       throw new Error(data.message || `HTTP error! status: ${response.status}`);
     }
 
+    // Return the full user profile data (not just the image URL)
     return data.data;
   } catch (error: any) {
     console.error("Image upload error details:", {
@@ -194,6 +195,32 @@ export const deactivateAccount = async (token: string) => {
 
   if (!response.ok) {
     throw new Error("Failed to deactivate account");
+  }
+
+  const data = await response.json();
+  return data.message;
+};
+
+// Change password
+export const changePassword = async (
+  token: string,
+  passwordData: {
+    currentPassword: string;
+    newPassword: string;
+  }
+) => {
+  const response = await fetch(`${USERS_API_URL}/change-password`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(passwordData),
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || "Failed to change password");
   }
 
   const data = await response.json();

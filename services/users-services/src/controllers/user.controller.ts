@@ -1,4 +1,5 @@
 import { Response } from "express";
+import bcrypt from "bcrypt";
 import User from "../models/User";
 import {
   AuthenticatedRequest,
@@ -125,7 +126,7 @@ export const updateUserProfile = async (
 // Update profile image
 export const updateProfileImage = async (
   req: AuthenticatedRequest,
-  res: Response<ApiResponse<{ profileImage: string }>>
+  res: Response<ApiResponse<UserProfileResponse>>
 ): Promise<void> => {
   try {
     const userId = req.user?.userId;
@@ -147,9 +148,16 @@ export const updateProfileImage = async (
       return;
     }
 
-    // Here you would typically upload to Cloudinary or similar service
-    // For now, we'll just store a placeholder URL
-    const imageUrl = `/uploads/${file.filename}`;
+    console.log("Uploaded file details:", {
+      filename: file.filename,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      path: file.path,
+    });
+
+    // Store the relative path to the uploaded image
+    const imageUrl = `uploads/${file.filename}`;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -157,8 +165,8 @@ export const updateProfileImage = async (
         profileImage: imageUrl,
         updatedAt: new Date(),
       },
-      { new: true }
-    );
+      { new: true, runValidators: true }
+    ).select("-__v");
 
     if (!updatedUser) {
       res.status(404).json({
@@ -168,10 +176,16 @@ export const updateProfileImage = async (
       return;
     }
 
+    console.log("Profile image updated successfully:", {
+      userId,
+      profileImage: imageUrl,
+      updatedUser: updatedUser.toObject(),
+    });
+
     res.status(200).json({
       success: true,
       message: "Profile image updated successfully",
-      data: { profileImage: imageUrl },
+      data: updatedUser.toObject(),
     });
   } catch (error) {
     console.error("Error updating profile image:", error);
@@ -329,6 +343,88 @@ export const deactivateAccount = async (
     });
   } catch (error) {
     console.error("Error deactivating account:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+// Change password
+export const changePassword = async (
+  req: AuthenticatedRequest,
+  res: Response<ApiResponse<null>>
+): Promise<void> => {
+  try {
+    const userId = req.user?.userId;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+      return;
+    }
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({
+        success: false,
+        message: "Current password and new password are required",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long",
+      });
+      return;
+    }
+
+    // Get user with password
+    const user = await User.findById(userId).select("+password");
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+      return;
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password
+    );
+
+    if (!isCurrentPasswordValid) {
+      res.status(400).json({
+        success: false,
+        message: "Current password is incorrect",
+      });
+      return;
+    }
+
+    // Hash new password
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password
+    await User.findByIdAndUpdate(userId, {
+      password: hashedNewPassword,
+      updatedAt: new Date(),
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+    });
+  } catch (error) {
+    console.error("Error changing password:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",

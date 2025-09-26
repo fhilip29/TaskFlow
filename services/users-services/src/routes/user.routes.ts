@@ -9,6 +9,7 @@ import {
   deleteProfileImage,
   updateUserPreferences,
   deactivateAccount,
+  changePassword,
 } from "../controllers/user.controller";
 
 const router = express.Router();
@@ -69,5 +70,6 @@ router.put("/preferences", updateUserPreferences);
 
 // Account management routes
 router.post("/deactivate", deactivateAccount);
+router.put("/change-password", changePassword);
 
 export default router;

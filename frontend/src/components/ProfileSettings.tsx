@@ -32,6 +32,10 @@ export default function ProfileSettings({
     "checking" | "connected" | "disconnected"
   >("checking");
 
+  // Track original data for change detection
+  const [originalData, setOriginalData] = useState<UpdateProfileData>({});
+  const [hasChanges, setHasChanges] = useState(false);
+
   const [formData, setFormData] = useState<UpdateProfileData>({
     fullName: "",
     bio: "",
@@ -51,6 +55,13 @@ export default function ProfileSettings({
     loadProfile();
     checkBackendConnection();
   }, []);
+
+  // Check for changes whenever formData updates
+  useEffect(() => {
+    const hasDataChanged =
+      JSON.stringify(formData) !== JSON.stringify(originalData);
+    setHasChanges(hasDataChanged);
+  }, [formData, originalData]);
 
   const checkBackendConnection = async () => {
     try {
@@ -89,6 +100,26 @@ export default function ProfileSettings({
           zipCode: profileData.address?.zipCode || "",
         },
       });
+
+      // Set original data for change tracking
+      const profileFormData = {
+        fullName: profileData.fullName || "",
+        bio: profileData.bio || "",
+        phoneNumber: profileData.phoneNumber || "",
+        gender: profileData.gender,
+        dateOfBirth: profileData.dateOfBirth
+          ? profileData.dateOfBirth.split("T")[0]
+          : "",
+        address: {
+          street: profileData.address?.street || "",
+          city: profileData.address?.city || "",
+          state: profileData.address?.state || "",
+          country: profileData.address?.country || "",
+          zipCode: profileData.address?.zipCode || "",
+        },
+      };
+
+      setOriginalData(profileFormData);
 
       if (profileData.profileImage) {
         setImagePreview(`http://localhost:4001/${profileData.profileImage}`);
@@ -144,6 +175,8 @@ export default function ProfileSettings({
       console.log("Uploading image:", file.name, file.size, file.type);
 
       const updatedProfile = await updateProfileImage(token, file);
+      console.log("Image upload response:", updatedProfile);
+
       setProfile(updatedProfile);
       setImagePreview(`http://localhost:4001/${updatedProfile.profileImage}`);
       setSuccess("Profile image updated successfully!");
@@ -151,9 +184,13 @@ export default function ProfileSettings({
       if (onProfileUpdate) {
         onProfileUpdate(updatedProfile);
       }
+
+      // Success message timeout
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       console.error("Image upload error:", err);
       setError(err.message || "Failed to upload image");
+      setTimeout(() => setError(null), 5000);
     } finally {
       setImageUploading(false);
     }
@@ -199,6 +236,7 @@ export default function ProfileSettings({
     try {
       setImageUploading(true);
       setError(null);
+      setSuccess(null);
 
       await deleteProfileImage(token);
       const updatedProfile = await getUserProfile(token);
@@ -209,9 +247,13 @@ export default function ProfileSettings({
       if (onProfileUpdate) {
         onProfileUpdate(updatedProfile);
       }
+
+      // Success message timeout
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       setError(err.message || "Failed to delete image");
       console.error(err);
+      setTimeout(() => setError(null), 5000);
     } finally {
       setImageUploading(false);
     }
@@ -220,6 +262,13 @@ export default function ProfileSettings({
   const handleSaveProfile = async () => {
     if (!token) {
       setError("No authentication token found");
+      return;
+    }
+
+    // Only proceed if there are changes
+    if (!hasChanges) {
+      setError("No changes to save");
+      setTimeout(() => setError(null), 3000);
       return;
     }
 
@@ -241,13 +290,16 @@ export default function ProfileSettings({
       console.log("Profile update successful:", updatedProfile);
 
       setProfile(updatedProfile);
+      setOriginalData(formData); // Update original data to reflect saved state
+      setHasChanges(false); // Reset changes flag
       setSuccess("Profile updated successfully!");
 
       if (onProfileUpdate) {
         onProfileUpdate(updatedProfile);
       }
 
-      setTimeout(() => setSuccess(null), 5000);
+      // Don't set timeout for success message - let it persist
+      setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
       console.error("Profile update error:", err);
       const errorMessage = err.message || "Failed to update profile";
@@ -763,8 +815,8 @@ export default function ProfileSettings({
       <div className="flex justify-center">
         <button
           onClick={handleSaveProfile}
-          disabled={saving}
-          className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 space-x-3 min-w-[200px] justify-center"
+          disabled={saving || !hasChanges}
+          className="inline-flex items-center px-8 py-4 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 space-x-3 min-w-[200px] justify-center"
         >
           {saving ? (
             <>
@@ -786,7 +838,7 @@ export default function ProfileSettings({
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              <span>Save Changes</span>
+              <span>{hasChanges ? "Save Changes" : "No Changes"}</span>
             </>
           )}
         </button>
