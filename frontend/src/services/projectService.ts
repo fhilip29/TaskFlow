@@ -12,7 +12,9 @@ import {
   ProjectsQuery,
 } from "@/types/project";
 
-const BASE_URL = "http://localhost:4002/api";
+const BASE_URL = `${
+  process.env.NEXT_PUBLIC_PROJECT_SERVICE_URL || "http://localhost:4002"
+}/api`;
 
 class ProjectService {
   private async makeRequest<T>(

@@ -1,4 +1,6 @@
-const USERS_API_URL = "http://localhost:4001/api/users";
+const USERS_API_URL = `${
+  process.env.NEXT_PUBLIC_USER_SERVICE_URL || "http://localhost:4001"
+}/api/users`;
 
 export interface UserPreferences {
   theme?: string;

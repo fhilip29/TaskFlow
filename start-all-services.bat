@@ -26,6 +26,11 @@ start cmd /k "cd services\project-services && npm run dev"
 
 timeout /t 2 /nobreak >nul
 
+echo Starting Task Service (Port 3003)...
+start cmd /k "cd services\task-services && npm run dev"
+
+timeout /t 2 /nobreak >nul
+
 echo Starting Frontend (Port 3000)...
 start cmd /k "cd frontend && npm run dev"
 
@@ -36,6 +41,7 @@ echo Health Check URLs:
 echo Auth Service: http://localhost:4000/health
 echo Users Service: http://localhost:4001/health  
 echo Project Service: http://localhost:4002/health
+echo Task Service: http://localhost:3003/health
 echo Frontend: http://localhost:3000
 echo.
 echo Press any key to exit...

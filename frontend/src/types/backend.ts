@@ -49,21 +49,29 @@ export interface UpdateProfileRequest {
 }
 
 // ============= TASK TYPES =============
-export type TaskStatus = "pending" | "in-progress" | "completed" | "cancelled";
-export type TaskPriority = "low" | "medium" | "high" | "urgent";
+export type TaskStatus =
+  | "backlog"
+  | "in_progress"
+  | "blocked"
+  | "done"
+  | "archived";
+export type TaskPriority = "low" | "medium" | "high" | "critical";
 
 export interface Task {
   _id: string;
+  projectId: string;
   title: string;
   description?: string;
   status: TaskStatus;
   priority: TaskPriority;
+  creator: string; // User ID
+  assignee?: string; // User ID
   dueDate?: Date;
-  assignedTo?: string; // User ID
-  projectId?: string;
-  tags?: string[];
-  attachments?: string[];
-  createdBy: string; // User ID
+  labels: string[];
+  watchers: string[]; // User IDs
+  isDeleted: boolean;
+  lastStatusChangeAt: Date;
+  metadata: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -132,10 +140,11 @@ export interface AuthResponse {
 // ============= STATUS MAPPINGS FOR UI =============
 export const StatusColorMap = {
   // Task Status Colors
-  pending: "info",
-  "in-progress": "warning",
-  completed: "success",
-  cancelled: "danger",
+  backlog: "info",
+  in_progress: "warning",
+  blocked: "danger",
+  done: "success",
+  archived: "subtle",
 
   // Project Status Colors
   active: "info",
@@ -145,7 +154,7 @@ export const StatusColorMap = {
   low: "subtle",
   medium: "warning",
   high: "danger",
-  urgent: "danger",
+  critical: "danger",
 } as const;
 
 export type StatusColor = (typeof StatusColorMap)[keyof typeof StatusColorMap];

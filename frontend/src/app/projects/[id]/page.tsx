@@ -17,6 +17,7 @@ import { projectService } from "@/services/projectService";
 import { ProjectModal } from "@/components/projects/ProjectModal";
 import { InviteMemberModal } from "@/components/projects/InviteMemberModal";
 import { MemberAvatar } from "@/components/projects/MemberAvatar";
+import { TaskList } from "@/components/tasks/TaskList";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -369,7 +370,7 @@ const ProjectDetailPage: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Project Overview */}
+            {/* Project Tasks */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -383,28 +384,20 @@ const ProjectDetailPage: React.FC = () => {
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">
-                      Project Overview
+                      Project Tasks
                     </h2>
                     <p className="text-sm text-gray-600">
-                      Tasks and milestones
+                      Manage tasks and track progress
                     </p>
                   </div>
                 </div>
               </div>
 
               <div className="p-6">
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
-                    <Calendar className="h-8 w-8 text-emerald-600" />
-                  </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Tasks coming soon
-                  </h3>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    Task management and project timeline features are being
-                    developed. Stay tuned for updates!
-                  </p>
-                </div>
+                <TaskList
+                  projectId={projectId}
+                  className="border-0 bg-transparent p-0"
+                />
               </div>
             </motion.div>
           </div>
